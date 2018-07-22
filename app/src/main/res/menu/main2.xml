@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/nav_homepage"
+        android:icon="@drawable/ic_home_black_profile_24dp"
+        android:title="HomePage"
+        />
+    <item
+        android:id="@+id/nav_Post_Wall"
+        android:icon="@drawable/ic_menu_gallery"
+        android:title="Post" />
+    <item
+        android:id="@+id/nav_Auction_Request"
+        android:icon="@drawable/ic_file_upload_black_24dp"
+        android:title="Upload Request" />
+    <item
+        android:id="@+id/nav_Auctions"
+        android:icon="@drawable/ic_brush_black_24dp"
+        android:title="My Auctions" />
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_menu_manage"
+        android:title="Settings"/>
+
+
+</menu>

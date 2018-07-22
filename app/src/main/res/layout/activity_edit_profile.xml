@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context=".EditProfileActivity">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imgView"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
+            android:gravity="center_horizontal"
+            android:paddingLeft="50dp"
+            android:paddingRight="50dp"
+            android:paddingTop="50dp"
+            android:src="@drawable/logo_main" />
+
+        <EditText
+            android:id="@+id/EditNameTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginHorizontal="50dp"
+            android:background="@drawable/edittext_1"
+            android:hint="Name"
+            android:inputType="text"
+            android:padding="15dp"
+            android:paddingHorizontal="20dp" />
+
+        <EditText
+            android:id="@+id/EditPhoneTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginHorizontal="50dp"
+            android:background="@drawable/edittext_1"
+            android:hint="Phone Number"
+            android:inputType="phone"
+            android:padding="15dp"
+            android:paddingHorizontal="20dp" />
+
+        <EditText
+            android:id="@+id/EditAddressTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginHorizontal="50dp"
+            android:background="@drawable/edittext_1"
+            android:hint="Address"
+            android:inputType="text"
+            android:padding="15dp"
+            android:paddingHorizontal="20dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/btnEditCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="50dp"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/button"
+                android:fontFamily="casual"
+                android:padding="15dp"
+                android:text="Cancel"
+                android:textColor="@color/colorPrimaryText" />
+
+            <Button
+                android:id="@+id/btnEditConfirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginBottom="50dp"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/button"
+                android:fontFamily="casual"
+                android:padding="15dp"
+                android:text="Confirm >"
+                android:textColor="@color/colorPrimaryText" />
+
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
