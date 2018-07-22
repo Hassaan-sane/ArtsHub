@@ -1,13 +1,11 @@
 package com.example.sane.onlinestore.Fragments;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,16 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-
-import com.example.sane.onlinestore.API.CategoryAPI;
-import com.example.sane.onlinestore.Events.CategoryEvent;
+import com.example.sane.onlinestore.API.BidAPI;
 import com.example.sane.onlinestore.LoginActivity;
-import com.example.sane.onlinestore.Models.TblCategory;
+import com.example.sane.onlinestore.MainActivity;
+import com.example.sane.onlinestore.Models.TblAuction;
+import com.example.sane.onlinestore.Models.TblBid;
 import com.example.sane.onlinestore.R;
-import com.example.sane.onlinestore.adapters.CategoryAdapters;
-
-
-import org.greenrobot.eventbus.EventBus;
+import com.example.sane.onlinestore.adapters.AuctionAdapters;
 
 import java.util.ArrayList;
 
@@ -33,18 +28,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static android.content.ContentValues.TAG;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link CategoryFragment.OnFragmentInteractionListener} interface
+ * {@link MyBidAuctionFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link CategoryFragment#newInstance} factory method to
+ * Use the {@link MyBidAuctionFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CategoryFragment extends Fragment {
+public class MyBidAuctionFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -53,12 +47,16 @@ public class CategoryFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    ArrayList arrayList = new ArrayList();
+    private RecyclerView recyclerView;
+    private String storedToken;
+    private int storedId;
+    private ArrayList<TblAuction> tblAuctionNew = new ArrayList<>();
+    private ArrayList<TblBid> mybids = new ArrayList<>();
 
     private OnFragmentInteractionListener mListener;
-    ArrayList arrayList = new ArrayList();
-    ProgressDialog progressDialog;
 
-    public CategoryFragment() {
+    public MyBidAuctionFragment() {
         // Required empty public constructor
     }
 
@@ -68,11 +66,11 @@ public class CategoryFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment CategoryFragment.
+     * @return A new instance of fragment MyBidAuctionFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static CategoryFragment newInstance(String param1, String param2) {
-        CategoryFragment fragment = new CategoryFragment();
+    public static MyBidAuctionFragment newInstance(String param1, String param2) {
+        MyBidAuctionFragment fragment = new MyBidAuctionFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -81,79 +79,78 @@ public class CategoryFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+
+
+            SharedPreferences preferences = this.getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
+            storedToken = preferences.getString("TokenKey", null);
+            storedId = preferences.getInt("UserID", 0);
+
+
+            if (storedToken == null) {
+
+                Intent intent = new Intent(this.getActivity(), LoginActivity.class);
+                startActivity(intent);
+            }
         }
-        progressDialog = new ProgressDialog(this.getActivity());
-        progressDialog.setMax(100);
-        progressDialog.setMessage("Please wait...");
-        progressDialog.setTitle("Fetching Data");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.show();
-
-
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        RecyclerView recyclerView;
-
-        SharedPreferences preferences = this.getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        String storedToken = preferences.getString("TokenKey", null);
-        int storedId = preferences.getInt("UserID", 0);
-        if (storedToken == null) {
-
-            Intent intent = new Intent(this.getActivity(), LoginActivity.class);
-            startActivity(intent);
-        }
-//        }
-
-        final CategoryAdapters categoryAdapter = new CategoryAdapters(this.getContext(), arrayList);
-        View view = inflater.inflate(R.layout.fragment_category, container, false);
-        recyclerView = view.findViewById(R.id.recylerView_category);
+        // Inflate the layout for this fragment
+        final AuctionAdapters auctionAdapters = new AuctionAdapters(this.getContext(), arrayList);
+        View view = inflater.inflate(R.layout.fragment_auction, container, false);
+        recyclerView = view.findViewById(R.id.recylerView_auction);
         recyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        recyclerView.setAdapter(categoryAdapter);
+        recyclerView.setAdapter(auctionAdapters);
 
-
-        CategoryAPI service = CategoryAPI.retrofit.create(CategoryAPI.class);
-        Call<ArrayList<TblCategory>> ItemList = service.getCategoryList(storedToken);
-
-        ItemList.enqueue(new Callback<ArrayList<TblCategory>>() {
-
+        BidAPI service = BidAPI.retrofit.create(BidAPI.class);
+        Call<ArrayList<TblBid>> GetMYBids = service.getMyBids(storedToken, storedId);
+        GetMYBids.enqueue(new Callback<ArrayList<TblBid>>() {
             @Override
-            public void onResponse(Call<ArrayList<TblCategory>> call, Response<ArrayList<TblCategory>> response) {
-
-                ArrayList<TblCategory> ProductDetailList = response.body();
-                Log.i("response_body", String.valueOf(response.body()));
-                categoryAdapter.setItemList(ProductDetailList);
-progressDialog.dismiss();
-                CategoryEvent categoryEvent = new CategoryEvent(ProductDetailList);
-                EventBus.getDefault().post(categoryEvent);
-
+            public void onResponse(Call<ArrayList<TblBid>> call, Response<ArrayList<TblBid>> response) {
+                mybids = response.body();
+                Log.i("TAG", "onResponse: "+response);
+                if(response.isSuccessful()&& response.body()!= null) {
+                    tblAuctionNew = filter();
+                    auctionAdapters.setAuctionList(tblAuctionNew);
+                }
+                else{
+                    Toast.makeText(getContext(), "You Have Not Made Any Bids", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
-            public void onFailure(Call<ArrayList<TblCategory>> call, Throwable t) {
-                Log.i(TAG, "onFailure: failed " + call + " thowable  " + t);
+            public void onFailure(Call<ArrayList<TblBid>> call, Throwable t) {
+                Log.i("inMyBids", "onFailure: " + call + " Throwable: " + t);
             }
         });
 
-
         return view;
     }
+    private ArrayList<TblAuction> filter() {
+        ArrayList<TblBid> filteredBidList = new ArrayList<>();
+        ArrayList<TblAuction> filterAuctionList = new ArrayList<>();
+
+        for (TblBid Bid : mybids) {
+            if (Bid.getUserId().toString().equals(storedId + "")) {
+                if (!filteredBidList.contains(Bid)) {
+                    filteredBidList.add(Bid);
+                    filterAuctionList.add(Bid.getTblAuction());
+                }
+            }
+        }
+
+        return filterAuctionList;
+    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -168,7 +165,7 @@ progressDialog.dismiss();
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
-            Toast.makeText(context, "fragment", Toast.LENGTH_SHORT).show();
+
         }
     }
 
@@ -192,4 +189,5 @@ progressDialog.dismiss();
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
 }

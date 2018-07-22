@@ -24,6 +24,12 @@ public interface BidAPI {
     @Headers("Content-Type: application/x-www-form-urlencoded")
     Call<TblBid> getBids(@Header("Authorization") String token, @Path("AuctionItemId")int id);
 
+    @GET("Bid/{UserId}/Bidder")
+    @Headers("Content-Type: application/x-www-form-urlencoded")
+    Call<ArrayList<TblBid>> getMyBids(@Header("Authorization") String token, @Path("UserId")int id);
+
+
+
     @POST("Bid")
     @Headers("Content-Type: application/x-www-form-urlencoded")
     @FormUrlEncoded

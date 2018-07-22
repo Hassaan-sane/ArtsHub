@@ -1,6 +1,7 @@
 package com.example.sane.onlinestore;
 
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -34,6 +35,7 @@ import retrofit2.Response;
 public class ProfileArtistActivity extends AppCompatActivity {
 
     ArrayList<TblFollow> FollowerList;
+    ProgressDialog progressDialog;
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener onNavigationItemSelectedListener
@@ -88,6 +90,13 @@ public class ProfileArtistActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle("Profile");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMax(100);
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setTitle("Fetching Data");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
 
         BottomNavigationView navigationView = (BottomNavigationView) findViewById(R.id.navigation_artist_Profile);
         navigationView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener);
@@ -156,6 +165,7 @@ public class ProfileArtistActivity extends AppCompatActivity {
                     }
                 }
                 Followers.setText("" + NumberOfFollowers);
+                progressDialog.dismiss();
             }
 
             @Override

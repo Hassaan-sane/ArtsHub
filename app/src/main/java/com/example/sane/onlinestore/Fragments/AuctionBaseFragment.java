@@ -16,9 +16,18 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.sane.onlinestore.API.BidAPI;
 import com.example.sane.onlinestore.LoginActivity;
 import com.example.sane.onlinestore.MainActivity;
+import com.example.sane.onlinestore.Models.TblAuction;
+import com.example.sane.onlinestore.Models.TblBid;
 import com.example.sane.onlinestore.R;
+
+import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -39,7 +48,10 @@ public class AuctionBaseFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    private String storedToken;
+    private int storedId;
+    private ArrayList<TblBid> tblBidnew = new ArrayList<>();
+    private ArrayList<TblBid> mybids = new ArrayList<>();
 
     private OnFragmentInteractionListener mListener;
 
@@ -79,8 +91,8 @@ public class AuctionBaseFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         SharedPreferences preferences = this.getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        String storedToken = preferences.getString("TokenKey", null);
-        int storedId = preferences.getInt("UserID", 0);
+        storedToken = preferences.getString("TokenKey", null);
+        storedId = preferences.getInt("UserID", 0);
 
 
         if (storedToken == null) {
@@ -101,7 +113,9 @@ public class AuctionBaseFragment extends Fragment {
         BtnMyBids.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                ((MainActivity) context).getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, new MyBidAuctionFragment())
+                        .commit();
             }
         });
 
@@ -118,6 +132,8 @@ public class AuctionBaseFragment extends Fragment {
 
         return v;
     }
+
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

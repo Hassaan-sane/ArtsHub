@@ -1,5 +1,6 @@
 package com.example.sane.onlinestore;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -41,6 +42,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private TextView mTextMessage;
     private String img;
     private TblUser tblUser;
+    ProgressDialog progressDialog;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -73,6 +75,13 @@ public class UserProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMax(100);
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setTitle("Fetching Data");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
 
         getSupportActionBar().setTitle("Profile");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -112,11 +121,13 @@ public class UserProfileActivity extends AppCompatActivity {
                 Username.setText(tblUser.getUsername());
                 Email.setText(tblUser.getTblUserDetail().getEmail());
                 Phone.setText(tblUser.getTblUserDetail().getPhone());
+               progressDialog.dismiss();
 
                 img = tblUser.getTblUserDetail().getUserImage();
                 byte[] decodedString = Base64.decode(img, Base64.DEFAULT);
                 Bitmap bm = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 userImg.setImageBitmap(bm);
+
 
             }
 

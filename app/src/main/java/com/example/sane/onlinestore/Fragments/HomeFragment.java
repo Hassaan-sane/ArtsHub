@@ -49,7 +49,7 @@ public class HomeFragment extends Fragment {
     List<TblItem> tblItems;
 
 
-    ProgressDialog progressDialog = new ProgressDialog(this.getContext());
+    ProgressDialog progressDialog;
 
 
     Gson gson;
@@ -63,7 +63,7 @@ public class HomeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
-
+        progressDialog = new ProgressDialog(this.getActivity());
         progressDialog.setMax(100);
         progressDialog.setMessage("Please wait...");
         progressDialog.setTitle("Fetching Data");

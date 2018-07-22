@@ -23,6 +23,9 @@ public interface AuctionAPI {
     @GET("Auction")
     Call<ArrayList<TblAuction>> getAuctionList(@Header("Authorization") String token);
 
+    @GET("Auction/{AuctionId}")
+    Call<ArrayList<TblAuction>> getAuctionListById(@Header("Authorization") String token,@Path("AuctionId") int id);
+
     @POST("Auction")
     @FormUrlEncoded
     Call<TblAuction> PostAuction(@Header("Authorization") String token,
