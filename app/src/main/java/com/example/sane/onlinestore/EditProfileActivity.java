@@ -12,6 +12,7 @@ import android.widget.EditText;
 import com.example.sane.onlinestore.API.UserAPI;
 import com.example.sane.onlinestore.Events.UserEvent;
 import com.example.sane.onlinestore.Models.TblUser;
+import com.example.sane.onlinestore.Models.TblUserDetail;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -23,11 +24,14 @@ import retrofit2.Response;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private static final String TAG ="TAG" ;
+    private static final String TAG = "TAG";
+    private TblUser tblUser;
+    private TblUserDetail tblUserDetail;
     private SharedPreferences preferences;
     private String storedToken;
     private int storedId;
     private String storedRole;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +56,25 @@ public class EditProfileActivity extends AppCompatActivity {
         final String phone = bundle.getString("Phone");
 
         final EditText EditName, EditPhone, EditAddress;
+        final UserAPI service = UserAPI.retrofit.create(UserAPI.class);
+        Call<TblUser> getUser = service.getUser(storedToken, storedId);
+        getUser.enqueue(new Callback<TblUser>() {
+            @Override
+            public void onResponse(Call<TblUser> call, Response<TblUser> response) {
+                if (response.isSuccessful()) {
+                    tblUser = response.body();
+                    Log.i(TAG, "onResponsein user: " + response.body());
+                } else {
+                    Log.i(TAG, "onResponsein : resoponse faliure");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TblUser> call, Throwable t) {
+                Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+            }
+        });
+
 
         EditName = findViewById(R.id.EditNameTextView);
         EditPhone = findViewById(R.id.EditPhoneTextView);
@@ -77,20 +100,51 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                UserAPI service = UserAPI.retrofit.create(UserAPI.class);
-                Call<TblUser> EditUser = service.editUser(storedToken,EditName.getText().toString(),storedId);
+                Call<TblUser> EditUser = service.editUser(storedToken,
+                        EditName.getText().toString(),
+                        tblUser.getTblUserDetail().getEmail(),
+                        tblUser.getRole(),
+                        tblUser.getAspNetUserId(),
+                        tblUser.getIsActive(),
+                        storedId,
+                        storedId);
                 EditUser.enqueue(new Callback<TblUser>() {
                     @Override
                     public void onResponse(Call<TblUser> call, Response<TblUser> response) {
-                        Log.i(TAG, "onResponse: "+response.body());
+                        Log.i(TAG, "onResponse in confirm: " + response);
                     }
 
                     @Override
                     public void onFailure(Call<TblUser> call, Throwable t) {
-
+                        Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
                     }
                 });
 
+                Call<TblUserDetail> EditUserDetail = service.editUserDetail(storedToken,
+                        storedId,
+                        storedId,
+                        EditPhone.getText().toString(),
+                        tblUser.getTblUserDetail().getEmail(),
+                        EditAddress.getText().toString(),
+                        tblUser.getTblUserDetail().getUserImage());
+                EditUserDetail.enqueue(new Callback<TblUserDetail>() {
+                    @Override
+                    public void onResponse(Call<TblUserDetail> call, Response<TblUserDetail> response) {
+                        Log.i(TAG, "onResponse in confirm detail: " + response);
+                    }
+
+                    @Override
+                    public void onFailure(Call<TblUserDetail> call, Throwable t) {
+                        Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+                    }
+                });
+                if (storedRole.toLowerCase().equals("r")) {
+                    Intent i = new Intent(getApplicationContext(), ProfileArtistActivity.class);
+                    startActivity(i);
+                } else {
+                    Intent i = new Intent(getApplicationContext(), UserProfileActivity.class);
+                    startActivity(i);
+                }
             }
         });
 

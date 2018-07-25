@@ -15,7 +15,7 @@ import retrofit2.http.Path;
 
 public interface CategoryAPI {
 
-    String baseURL = "http://192.168.10.13:80/app/api/";
+    String baseURL = "http://192.168.10.16:80/app/api/";
 
     @GET("Category")
     @Headers("Content-Type: application/x-www-form-urlencoded")

@@ -19,7 +19,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.Path;
 
 public interface HomeAPI {
-    String BaseURL = "http://192.168.10.13/app/api/";
+    String BaseURL = "http://192.168.10.16/app/api/";
     @GET("item")
     @Headers("Content-Type: application/x-www-form-urlencoded")
     Call<ArrayList<TblItem>> getItemList(@Header("Authorization") String token);

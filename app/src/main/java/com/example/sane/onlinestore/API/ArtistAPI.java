@@ -21,7 +21,7 @@ import retrofit2.http.Path;
 
 public interface ArtistAPI {
 
-    String baseURL = "http://192.168.10.13:80/app/api/";
+    String baseURL = "http://192.168.10.16:80/app/api/";
 
     @POST("ArtistPost")
     @Headers("Content-Type: application/x-www-form-urlencoded")

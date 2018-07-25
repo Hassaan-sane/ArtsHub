@@ -22,6 +22,7 @@ import com.example.sane.onlinestore.API.HomeAPI;
 import com.example.sane.onlinestore.Events.CartEvent;
 import com.example.sane.onlinestore.Events.HomeEvent;
 import com.example.sane.onlinestore.LoginActivity;
+import com.example.sane.onlinestore.MainActivity;
 import com.example.sane.onlinestore.Models.TblCart;
 import com.example.sane.onlinestore.Models.TblShipping;
 import com.example.sane.onlinestore.R;
@@ -69,10 +70,10 @@ public class CartFragment extends Fragment {
     private RecyclerView recyclerView;
 
     private List<TblCart> Cartlist = new ArrayList<>();
-    private  ArrayList<TblCart> CartList;
-    private TblShipping tblShipping;
+    private ArrayList<TblCart> CartList;
+    private TblShipping tblShipping = new TblShipping();
     private Context context;
-    int SumPrice=0;
+    int SumPrice = 0;
 
     @Override
     public String toString() {
@@ -148,7 +149,7 @@ public class CartFragment extends Fragment {
 
 
         final CartAPI service = CartAPI.retrofit.create(CartAPI.class);
-        final retrofit2.Call<ArrayList<TblCart>> CartItems = service.getItemOrder(storedToken,storedId);
+        final retrofit2.Call<ArrayList<TblCart>> CartItems = service.getItemOrder(storedToken, storedId);
 
         CartItems.enqueue(new Callback<ArrayList<TblCart>>() {
             @Override
@@ -159,14 +160,14 @@ public class CartFragment extends Fragment {
                 int pos = 0;
                 for (; pos < size; pos++) {
 
-                    SumPrice = (Integer.parseInt(CartList.get(pos).getTblItem().getPrice())*CartList.get(pos).getQuantity()) + SumPrice;
+                    SumPrice = (Integer.parseInt(CartList.get(pos).getTblItem().getPrice()) * CartList.get(pos).getQuantity()) + SumPrice;
 
                 }
 
-                GrandTotal.setText(""+SumPrice);
+                GrandTotal.setText("" + SumPrice);
 
 
-                cartAdapters.setCartList(storedToken,storedId,CartList);
+                cartAdapters.setCartList(storedToken, storedId, CartList);
             }
 
             @Override
@@ -199,15 +200,53 @@ public class CartFragment extends Fragment {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-                    SumPrice = (Integer.parseInt(CartList.get(pos).getTblItem().getPrice())*CartList.get(pos).getQuantity());
-                    tblShipping.setShippingTotal(SumPrice+"");
+                    SumPrice = (Integer.parseInt(CartList.get(pos).getTblItem().getPrice()) * CartList.get(pos).getQuantity());
+                    tblShipping.setShippingTotal(SumPrice + "");
                     tblShipping.setShippingDate(Formatout.format(startDate));
 
-                    Call<TblShipping> AddShipping = service.addShipping(storedToken,tblShipping.getShippingDate(),storedId,tblShipping.getShippingTotal(),tblShipping.getItemId(),tblShipping.getQuantity());
+                    Call<TblShipping> AddShipping = service.addShipping(storedToken,
+                            tblShipping.getShippingDate(),
+                            storedId, tblShipping.getShippingTotal(),
+                            tblShipping.getItemId(),
+                            tblShipping.getQuantity());
+                    final int finalPos = pos;
+                    AddShipping.enqueue(new Callback<TblShipping>() {
+                        @Override
+                        public void onResponse(Call<TblShipping> call, Response<TblShipping> response) {
+                            Log.i(TAG, "onResponse: " + response);
+                            if (response.isSuccessful()) {
 
-                    Toast.makeText(context, "You are Checked Out", Toast.LENGTH_SHORT).show();
+                                String Orderid = CartList.get(finalPos).getOrderId().toString();
+
+                                CartAPI service = CartAPI.retrofit.create(CartAPI.class);
+                                retrofit2.Call<TblCart> delCartItems = service.removeItem(storedToken, Orderid);
+
+                                delCartItems.enqueue(new Callback<TblCart>() {
+                                    @Override
+                                    public void onResponse(retrofit2.Call<TblCart> call, Response<TblCart> response) {
+                                        Log.i(TAG, "onResponse in delete cart: " + response);
+                                    }
+
+                                    @Override
+                                    public void onFailure(retrofit2.Call<TblCart> call, Throwable t) {
+                                        Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+                                    }
+                                });
+
+                            }
+
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<TblShipping> call, Throwable t) {
+                            Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+                        }
+                    });
                 }
 
+                Intent intent = new Intent(getContext(), MainActivity.class);
+                startActivity(intent);
             }
         });
 

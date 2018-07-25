@@ -18,7 +18,7 @@ import retrofit2.http.Path;
 public interface AuctionAPI {
 
 
-    String baseURL = "http://192.168.10.13:80/app/api/";
+    String baseURL = "http://192.168.10.16:80/app/api/";
 
     @GET("Auction")
     Call<ArrayList<TblAuction>> getAuctionList(@Header("Authorization") String token);

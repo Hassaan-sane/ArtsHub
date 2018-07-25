@@ -34,7 +34,7 @@ import static android.content.Context.MODE_PRIVATE;
 public interface UserAPI {
 
 
-    String baseURL = "http://192.168.10.13:80/app/";
+    String baseURL = "http://192.168.10.16:80/app/";
 
     @GET("api/User")
     @Headers("Content-Type: application/x-www-form-urlencoded")
@@ -67,6 +67,11 @@ public interface UserAPI {
     @FormUrlEncoded
     Call<TblUser> editUser(@Header("Authorization") String token,
                            @Field("Name") String Name,
+                           @Field("Username") String Email,
+                           @Field("Role") String Role,
+                           @Field("AspNetUserId") String Aspid,
+                           @Field("IsActive") String Active,
+                           @Field("UserId") int Userid,
                            @Path("UserId") int id
     );
 
@@ -80,13 +85,17 @@ public interface UserAPI {
                                       @Field("Address") String Address,
                                       @Field("UserImage") String image
     );
+
     @PUT("api/UserDetail/{UserId}")
     @Headers("Content-Type: application/x-www-form-urlencoded")
     @FormUrlEncoded
     Call<TblUserDetail> editUserDetail(@Header("Authorization") String token,
-                                      @Path("UserId") int id,
-                                      @Field("Phone") String phone,
-                                      @Field("Address") String Address
+                                       @Path("UserId") int Userid,
+                                       @Field("UserId") int id,
+                                       @Field("Phone") String phone,
+                                       @Field("Email") String Email,
+                                       @Field("Address") String Address,
+                                       @Field("UserImage") String image
     );
 
 
