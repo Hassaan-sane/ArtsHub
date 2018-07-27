@@ -86,6 +86,11 @@ public class SearchProductAdapters extends RecyclerView.Adapter<SearchProductAda
         }
     };
 
+    public void setItemList(ArrayList<TblItem> itemList) {
+        this.ItemList=itemList;
+        this.ItemListFull= new ArrayList<>(itemList);
+    }
+
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 

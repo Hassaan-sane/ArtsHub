@@ -109,6 +109,9 @@ public class SearchAdapters extends RecyclerView.Adapter<SearchAdapters.ViewHold
         }
     };
 
+    public void setArtistList(ArrayList<TblUser> artistList) {
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView ArtistName;

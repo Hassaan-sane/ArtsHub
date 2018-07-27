@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,16 +32,18 @@ import retrofit2.Response;
 
 import static android.content.ContentValues.TAG;
 
-public class ProductAdapters extends RecyclerView.Adapter<ProductAdapters.ViewHolder> {
+public class ProductAdapters extends RecyclerView.Adapter<ProductAdapters.ViewHolder> implements Filterable {
 
 
     int Quantity, storedId;
     String ItemID, storedToken;
     private List<TblItem> listItems;
+    private List<TblItem> listItemsFull;
     private Context context;
 
     public ProductAdapters(List<TblItem> listItems, Context context, int storedId, String storedToken) {
         this.listItems = listItems;
+        listItemsFull = new ArrayList<>(listItems);
         this.context = context;
         this.storedId = storedId;
         this.storedToken = storedToken;
@@ -48,6 +52,7 @@ public class ProductAdapters extends RecyclerView.Adapter<ProductAdapters.ViewHo
 
     public void setItemList(ArrayList<TblItem> arrayList) {
         this.listItems = arrayList;
+        listItemsFull= new ArrayList<>(arrayList);
         notifyDataSetChanged();
     }
 
@@ -72,6 +77,42 @@ public class ProductAdapters extends RecyclerView.Adapter<ProductAdapters.ViewHo
             AddToCart = itemView.findViewById(R.id.BtnAddtoCart);
         }
     }
+
+    @Override
+    public Filter getFilter() {
+        return productFilter;
+    }
+    private Filter productFilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence charSequence) {
+            ArrayList<TblItem> filteredList = new ArrayList<>();
+            if (charSequence == null || charSequence.length() == 0) {
+                filteredList.addAll(listItemsFull);
+
+            } else {
+                String filterPattern = charSequence.toString().toLowerCase();
+                for (TblItem item: listItemsFull)
+                {
+                    if(item.getItemName().toString().toLowerCase().contains(filterPattern)){
+                        filteredList.add(item);
+                    }
+
+                }
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+            listItems.clear();
+            listItems.addAll((List) filterResults.values);
+            notifyDataSetChanged();
+
+        }
+    };
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

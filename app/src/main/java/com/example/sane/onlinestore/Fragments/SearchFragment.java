@@ -76,7 +76,6 @@ public class SearchFragment extends Fragment {
     }
 
 
-
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -141,20 +140,19 @@ public class SearchFragment extends Fragment {
         });
 
         searchAdapters = new SearchAdapters(this.getContext(), arrayList, SearchET.getText().toString());
-        searchProductAdapters = new SearchProductAdapters(arraylistItem,this.getContext(),SearchET.getText().toString(),storedId,storedToken);
+        searchProductAdapters = new SearchProductAdapters(arraylistItem, this.getContext(), SearchET.getText().toString(), storedId, storedToken);
 
         recyclerView = v.findViewById(R.id.recylerView_search);
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(v.getContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(),LinearLayoutManager.HORIZONTAL,true));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.HORIZONTAL, true));
 
-        recyclerView_Product= v.findViewById(R.id.recylerView_search_product);
+        recyclerView_Product = v.findViewById(R.id.recylerView_search_product);
         recyclerView_Product.setHasFixedSize(true);
         recyclerView_Product.setLayoutManager(new LinearLayoutManager(this.getContext()));
 
         recyclerView.setAdapter(searchAdapters);
         recyclerView_Product.setAdapter(searchProductAdapters);
-
 
 
         UserAPI service = UserAPI.retrofit.create(UserAPI.class);
@@ -172,7 +170,9 @@ public class SearchFragment extends Fragment {
                         ArtistList.add(item);
                     }
                 }
+                searchAdapters.AddUserList(ArtistList);
             }
+
             @Override
             public void onFailure(Call<ArrayList<TblUser>> call, Throwable t) {
                 Log.i("inSearch", "onFailure: " + call + " Throwable: " + t);
@@ -182,8 +182,9 @@ public class SearchFragment extends Fragment {
         SearchItem.enqueue(new Callback<ArrayList<TblItem>>() {
             @Override
             public void onResponse(Call<ArrayList<TblItem>> call, Response<ArrayList<TblItem>> response) {
-                ItemList =response.body();
+                ItemList = response.body();
 
+                searchProductAdapters.setItemList(ItemList);
                 Log.i("InSearchItem", "onResponseItems: " + response.body());
             }
 
@@ -196,34 +197,36 @@ public class SearchFragment extends Fragment {
 
         return v;
     }
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//
-//        inflater.inflate(R.menu.activity_main2_drawer,menu);
-//        MenuItem searchView = menu.findItem(R.id.navigation_search2);
-//        SearchView searchView1 = (SearchView) searchView.getActionView();
-//        searchView1.setImeOptions(EditorInfo.IME_ACTION_DONE);
-//
-//        searchView1.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                searchProductAdapters.getFilter().filter(newText);
-//                searchAdapters.getFilter().filter(newText);
-//                return false;
-//            }
-//        });
-//        super.onCreateOptionsMenu(menu, inflater);
-//    }
+
+    //    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        inflater.inflate(R.menu.activity_main2_drawer, menu);
+        MenuItem searchView = menu.findItem(R.id.navigation_search2);
+        SearchView searchView1 = (SearchView) searchView.getActionView();
+        searchView1.setImeOptions(EditorInfo.IME_ACTION_DONE);
+
+        searchView1.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchProductAdapters.getFilter().filter(newText);
+                searchAdapters.getFilter().filter(newText);
+                return false;
+            }
+        });
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
     private void filterProduct(String s) {
         ArrayList<TblItem> filteredList = new ArrayList<>();
 
-        for(TblItem item: ItemList){
-            if(item.getItemName().toLowerCase().contains(s.toLowerCase())){
+        for (TblItem item : ItemList) {
+            if (item.getItemName().toLowerCase().contains(s.toLowerCase())) {
                 filteredList.add(item);
             }
         }

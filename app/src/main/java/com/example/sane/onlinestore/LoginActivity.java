@@ -1,5 +1,6 @@
 package com.example.sane.onlinestore;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,6 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     public static final String MyPREFERENCES = "MyPrefs";
     public static final String Token = "TokenKey";
     public static final String UserID = "UserID";
+    private  ProgressDialog progressDialog;
 
     SharedPreferences sharedpreferences;
 
@@ -65,15 +67,25 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+               progressDialog = new ProgressDialog(LoginActivity.this);
+                progressDialog.setMax(100);
+                progressDialog.setMessage("Please wait...");
+                progressDialog.setTitle("Fetching Data");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.show();
+
                 userName = etusername.getText().toString();
                 password = etpassword.getText().toString();
 
                 if (!userName.contains("@") || !userName.contains(".")) {
                     Toast.makeText(LoginActivity.this, "Email Not Correct", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
                 } else if (password.length() <= 4) {
                     Toast.makeText(LoginActivity.this, "Password Should be atlease 7 charachters", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
                 } else if (password == "") {
                     Toast.makeText(LoginActivity.this, "Password Cant be Empty", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
                 } else {
 
                     UserAPI service = UserAPI.retrofit.create(UserAPI.class);
@@ -102,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
                                         int pos = 0;
                                         for (; pos <= size; pos++) {
                                             String name;
-                                            name = tblUsers.get(pos).getUsername().toLowerCase();
+                                            name = tblUsers.get(pos).getTblUserDetail().getEmail().toLowerCase();
                                             if (name.equals(userName.toLowerCase())) {
                                                 break;
                                             }
@@ -142,11 +154,13 @@ public class LoginActivity extends AppCompatActivity {
 
 
                             Toast.makeText(LoginActivity.this, "Signed IN" + response.toString(), Toast.LENGTH_LONG).show();
+                            progressDialog.dismiss();
                         }
 
                         @Override
                         public void onFailure(Call<TblToken> call, Throwable t) {
                             Log.i("SignInFaliure", "SignInFailure: " + call + " Throwable: " + t);
+                            progressDialog.dismiss();
                             Toast.makeText(LoginActivity.this, "User or Password Incorrect", Toast.LENGTH_LONG).show();
                         }
                     });

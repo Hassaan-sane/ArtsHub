@@ -1,5 +1,6 @@
 package com.example.sane.onlinestore;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -26,6 +28,7 @@ import android.widget.TextView;
 
 import android.widget.Toast;
 
+import com.example.sane.onlinestore.API.HomeAPI;
 import com.example.sane.onlinestore.Events.HomeEvent;
 import com.example.sane.onlinestore.Fragments.AuctionBaseFragment;
 import com.example.sane.onlinestore.Fragments.AuctionFragment;
@@ -34,12 +37,23 @@ import com.example.sane.onlinestore.Fragments.CategoryFragment;
 import com.example.sane.onlinestore.Fragments.HomeFragment;
 import com.example.sane.onlinestore.Fragments.NotificationFragment;
 import com.example.sane.onlinestore.Fragments.SearchFragment;
+import com.example.sane.onlinestore.Models.TblCategory;
+import com.example.sane.onlinestore.Models.TblItem;
+import com.example.sane.onlinestore.adapters.ProductAdapters;
 import com.example.sane.onlinestore.adapters.SearchAdapters;
 import com.example.sane.onlinestore.adapters.SearchProductAdapters;
+import com.example.sane.onlinestore.adapters.SpecificProductAdapters;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -55,6 +69,14 @@ public class MainActivity extends AppCompatActivity {
     private String storedToken;
     private int storedId;
     private String storedRole;
+
+    ProgressDialog progressDialog;
+
+    private ProductAdapters productAdapter;
+    ArrayList arrayList = new ArrayList();
+    TblCategory items = new TblCategory();
+    ArrayList<TblItem> ItemDetails = new ArrayList<>();
+    List<TblItem> tblItems;
 
     boolean doubleBackToExitPressedOnce = false;
 
@@ -139,6 +161,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                productAdapter.getFilter().filter(newText);
+//                searchAdapters.getFilter().filter(newText);
                 return false;
             }
         });
@@ -169,6 +193,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setMax(100);
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setTitle("Fetching Data");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
 
         preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         storedToken = preferences.getString("TokenKey", null);
@@ -189,11 +219,39 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//        FragmentTransaction transaction = fragmentManager.beginTransaction();
+//
+//        transaction.replace(R.id.container, new HomeFragment()).commit();
+//        Toast.makeText(MainActivity.this, "Home", Toast.LENGTH_SHORT).show();
 
-        transaction.replace(R.id.container, new HomeFragment()).commit();
-        Toast.makeText(MainActivity.this, "Home", Toast.LENGTH_SHORT).show();
+
+        productAdapter = new ProductAdapters(arrayList, getApplicationContext(), storedId, storedToken);
+        recyclerView = findViewById(R.id.recyclerView_homeactivity);
+        recyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        recyclerView.setAdapter(productAdapter);
+
+        HomeAPI service = HomeAPI.retrofit.create(HomeAPI.class);
+        Call<ArrayList<TblItem>> ItemList = service.getItemList(storedToken);
+        ItemList.enqueue(new Callback<ArrayList<TblItem>>() {
+            @Override
+            public void onResponse(Call<ArrayList<TblItem>> call, Response<ArrayList<TblItem>> response) {
+                ItemDetails = response.body();
+                Log.i(TAG, "onResponse: " + response.toString());
+                productAdapter.setItemList(ItemDetails);
+                Log.i(TAG, "onResponse2: " + ItemDetails);
+
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<TblItem>> call, Throwable t) {
+                Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+
+            }
+        });
 
 
     }
