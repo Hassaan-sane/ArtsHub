@@ -1,5 +1,6 @@
 package com.example.sane.onlinestore;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -42,11 +43,18 @@ public class ArtistPostWallActivity extends AppCompatActivity {
     private ArrayList<TblFollow> FollowListNew;
     private List<Integer> UserIdList = new ArrayList<>();
     private Context context;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_artist_post_wall);
+        progressDialog = new ProgressDialog(ArtistPostWallActivity.this);
+        progressDialog.setMax(100);
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setTitle("Fetching Data");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -60,9 +68,37 @@ public class ArtistPostWallActivity extends AppCompatActivity {
             Intent intent = new Intent(this.context, LoginActivity.class);
             startActivity(intent);
         }
-
-
         final ArtistWallAdapters artistWallAdapters = new ArtistWallAdapters(tblArtistPosts, tblUser, context);
+
+        recyclerView = findViewById(R.id.recylerView_Wall1);
+        recyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.getApplicationContext());
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getApplicationContext()));
+        recyclerView.setAdapter(artistWallAdapters);
+        UserAPI service = UserAPI.retrofit.create(UserAPI.class);
+        Call<TblUser> User = service.getUser(storedToken, storedId);
+
+        User.enqueue(new Callback<TblUser>() {
+            @Override
+            public void onResponse(Call<TblUser> call, Response<TblUser> response) {
+                tblUser = response.body();
+                tblArtistPosts = tblUser.getTblArtistPost();
+                for (TblArtistPost item : tblArtistPosts) {
+                    if (item.getUserId().equals(storedId)) {
+                        tblArtistPostsList.add(item);
+                    }
+                }
+                progressDialog.dismiss();
+                artistWallAdapters.setList(tblArtistPosts, tblUser);
+
+            }
+
+            @Override
+            public void onFailure(Call<TblUser> call, Throwable t) {
+                Log.i("ArtistProfileFaliure", "ArtistProfileFaliure" + call + " Throwable: " + t);
+            }
+        });
+
 
         FollowAPI service3 = FollowAPI.retrofit.create(FollowAPI.class);
         Call<ArrayList<TblFollow>> GetFollowers = service3.getFollowList(storedToken, storedId);
@@ -86,48 +122,7 @@ public class ArtistPostWallActivity extends AppCompatActivity {
 
             }
         });
-        UserAPI service = UserAPI.retrofit.create(UserAPI.class);
-        Call<TblUser> User = service.getUser(storedToken, storedId);
 
-        User.enqueue(new Callback<TblUser>() {
-            @Override
-            public void onResponse(Call<TblUser> call, Response<TblUser> response) {
-                tblUser = response.body();
-            }
-
-            @Override
-            public void onFailure(Call<TblUser> call, Throwable t) {
-                Log.i("ArtistProfileFaliure", "ArtistProfileFaliure" + call + " Throwable: " + t);
-            }
-        });
-        ArtistAPI service2 = ArtistAPI.retrofit.create(ArtistAPI.class);
-        Call<List<TblArtistPost>> GetPosts = service2.GetPosts(storedToken);
-        GetPosts.enqueue(new Callback<List<TblArtistPost>>() {
-            @Override
-            public void onResponse(Call<List<TblArtistPost>> call, Response<List<TblArtistPost>> response) {
-                tblArtistPosts = response.body();
-                if (response.body() != null) {
-                    for (TblArtistPost item : tblArtistPosts) {
-                        if (item.getUserId().equals(storedId)) {
-                            tblArtistPostsList.add(item);
-                        }
-                    }
-                    artistWallAdapters.setList(tblArtistPostsList, tblUser);
-
-                } else {
-                    Log.i(TAG, "onResponse: Response is null ");
-                }
-
-
-            }
-
-            @Override
-            public void onFailure(Call<List<TblArtistPost>> call, Throwable t) {
-
-                Log.i("ArtistProfileFaliure", "ArtistProfileFaliure" + call + " Throwable: " + t);
-
-            }
-        });
 
         Button BtnPost;
         final EditText CaptionET;
@@ -137,6 +132,7 @@ public class ArtistPostWallActivity extends AppCompatActivity {
         BtnPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
 
                 String tmp;
                 tmp = CaptionET.getText().toString();
@@ -153,7 +149,7 @@ public class ArtistPostWallActivity extends AppCompatActivity {
                         for (int pos = 0; pos < size; pos++) {
 
                             Call<TblPostNotification> AddPostNoti = service
-                                    .addPostNotification(storedToken, storedId,UserIdList.get(pos), PostId);
+                                    .addPostNotification(storedToken, storedId, UserIdList.get(pos), PostId);
                             AddPostNoti.enqueue(new Callback<TblPostNotification>() {
                                 @Override
                                 public void onResponse(Call<TblPostNotification> call, Response<TblPostNotification> response) {
@@ -181,14 +177,6 @@ public class ArtistPostWallActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        recyclerView = findViewById(R.id.recylerView_Wall1);
-        recyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.getApplicationContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this.getApplicationContext()));
-        recyclerView.setAdapter(artistWallAdapters);
-
-
 
 
     }

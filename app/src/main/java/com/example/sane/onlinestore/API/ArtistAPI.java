@@ -34,6 +34,7 @@ public interface ArtistAPI {
     @GET("ArtistPost")
     @Headers("Content-Type: application/x-www-form-urlencoded")
     Call<List<TblArtistPost>> GetPosts(@Header("Authorization") String token
+//                                       @Path("UserId") int UserId
     );
 
     @GET("PostNotification/{UserId}/User")

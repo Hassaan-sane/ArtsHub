@@ -148,7 +148,7 @@ public class AuctionBaseFragment extends Fragment {
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
-            Toast.makeText(context, "This is base", Toast.LENGTH_SHORT).show();
+
         }
     }
 

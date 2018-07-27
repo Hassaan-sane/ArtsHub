@@ -1,5 +1,6 @@
 package com.example.sane.onlinestore.Fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,16 +20,21 @@ import com.example.sane.onlinestore.API.AuctionAPI;
 
 import com.example.sane.onlinestore.API.HomeAPI;
 import com.example.sane.onlinestore.LoginActivity;
+import com.example.sane.onlinestore.MainActivity;
 import com.example.sane.onlinestore.Models.TblAuction;
 import com.example.sane.onlinestore.R;
 import com.example.sane.onlinestore.adapters.AuctionAdapters;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.content.ContentValues.TAG;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
@@ -51,6 +57,8 @@ public class AuctionFragment extends Fragment {
 
     ArrayList arrayList = new ArrayList();
     private RecyclerView recyclerView;
+    private ProgressDialog progressDialog;
+    private ArrayList<TblAuction> AuctionItems= new ArrayList<>();
 
     private OnFragmentInteractionListener mListener;
     private String TAG;
@@ -100,9 +108,16 @@ public class AuctionFragment extends Fragment {
             startActivity(intent);
         }
 
-
         // Inflate the layout for this fragment
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMax(100);
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setTitle("Fetching Data");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+
         Log.i(TAG, "onCreateView in aution fragmetn: ");
+
         final AuctionAdapters auctionAdapters = new AuctionAdapters(this.getContext(), arrayList);
         View view = inflater.inflate(R.layout.fragment_auction, container, false);
         recyclerView = view.findViewById(R.id.recylerView_auction);
@@ -119,9 +134,10 @@ public class AuctionFragment extends Fragment {
             @Override
             public void onResponse(Call<ArrayList<TblAuction>> call, Response<ArrayList<TblAuction>> response) {
 
-                ArrayList<TblAuction> AuctionItems=response.body();
+                AuctionItems=response.body();
                 Log.i(TAG, "onResponse: "+response.toString());
-                auctionAdapters.setAuctionList(AuctionItems);
+                progressDialog.dismiss();
+                auctionAdapters.setAuctionList(filterAuctionItemByDate());
 
             }
 
@@ -134,6 +150,28 @@ public class AuctionFragment extends Fragment {
 
         return view;
 
+    }
+    private ArrayList<TblAuction> filterAuctionItemByDate() {
+        ArrayList<TblAuction> filteredList = new ArrayList<>();
+
+        for (TblAuction item : AuctionItems ) {
+            String dtStart = item.getAuctionStartDate();
+            String dtEnd = item.getAuctionLastDate();
+
+            SimpleDateFormat Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+            try {
+                Date Sdate = Format.parse(dtStart);
+                Date Edate = Format.parse(dtEnd);
+                if (System.currentTimeMillis()>Sdate.getTime()&&System.currentTimeMillis()<Edate.getTime()) {
+                    filteredList.add(item);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return filteredList;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

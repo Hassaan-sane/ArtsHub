@@ -8,7 +8,7 @@ public class TblUser {
 
     @SerializedName("tbl_ArtistPost")
     @Expose
-    private List<Object> tblArtistPost = null;
+    private List<TblArtistPost> tblArtistPost = null;
     @SerializedName("tbl_Auction")
     @Expose
     private List<TblAuction> tblAuction = null;
@@ -64,7 +64,7 @@ public class TblUser {
     public TblUser() {
     }
 
-    public TblUser(List<Object> tblArtistPost, List<TblAuction> tblAuction, List<Object> tblAuctionOrder, List<TblBid> tblBid, List<Object> tblItemOrder, List<Object> tblShipping, List<Object> tblUser1, List<Object> tblUser2, TblUserDetail tblUserDetail, List<Object> tblPostNotification, List<Object> tblPostNotification1, Integer userId, String name, String username, String role, String aspNetUserId, String isActive) {
+    public TblUser(List<TblArtistPost> tblArtistPost, List<TblAuction> tblAuction, List<Object> tblAuctionOrder, List<TblBid> tblBid, List<Object> tblItemOrder, List<Object> tblShipping, List<Object> tblUser1, List<Object> tblUser2, TblUserDetail tblUserDetail, List<Object> tblPostNotification, List<Object> tblPostNotification1, Integer userId, String name, String username, String role, String aspNetUserId, String isActive) {
         this.tblArtistPost = tblArtistPost;
         this.tblAuction = tblAuction;
         this.tblAuctionOrder = tblAuctionOrder;
@@ -108,11 +108,11 @@ public class TblUser {
         this.tblUserDetail = tblUserDetail;
     }
 
-    public List<Object> getTblArtistPost() {
+    public List<TblArtistPost> getTblArtistPost() {
         return tblArtistPost;
     }
 
-    public void setTblArtistPost(List<Object> tblArtistPost) {
+    public void setTblArtistPost(List<TblArtistPost> tblArtistPost) {
         this.tblArtistPost = tblArtistPost;
     }
 

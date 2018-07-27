@@ -35,6 +35,7 @@ import retrofit2.Response;
 public class ProfileArtistActivity extends AppCompatActivity {
 
     ArrayList<TblFollow> FollowerList;
+    private  TblUser tblUser;
     ProgressDialog progressDialog;
 
 
@@ -72,6 +73,9 @@ public class ProfileArtistActivity extends AppCompatActivity {
 
                 case R.id.nav_settings:
                     Intent i = new Intent(getApplicationContext(), SettingActivity.class);
+                    i.putExtra("Name",tblUser.getName());
+                    i.putExtra("Phone",tblUser.getTblUserDetail().getPhone());
+                    i.putExtra("Address",tblUser.getTblUserDetail().getAddress());
                     startActivity(i);
                     return true;
 
@@ -127,7 +131,7 @@ public class ProfileArtistActivity extends AppCompatActivity {
         User.enqueue(new Callback<TblUser>() {
             @Override
             public void onResponse(Call<TblUser> call, Response<TblUser> response) {
-                TblUser tblUser = response.body();
+                tblUser = response.body();
                 String temp1 = tblUser.getName();
                 Name.setText(temp1);
 

@@ -49,8 +49,7 @@ public class MyBidAuctionFragment extends Fragment {
     private String mParam2;
     ArrayList arrayList = new ArrayList();
     private RecyclerView recyclerView;
-    private String storedToken;
-    private int storedId;
+
     private ArrayList<TblAuction> tblAuctionNew = new ArrayList<>();
     private ArrayList<TblBid> mybids = new ArrayList<>();
 
@@ -86,16 +85,6 @@ public class MyBidAuctionFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
 
 
-            SharedPreferences preferences = this.getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
-            storedToken = preferences.getString("TokenKey", null);
-            storedId = preferences.getInt("UserID", 0);
-
-
-            if (storedToken == null) {
-
-                Intent intent = new Intent(this.getActivity(), LoginActivity.class);
-                startActivity(intent);
-            }
         }
     }
 
@@ -103,6 +92,20 @@ public class MyBidAuctionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+
+        SharedPreferences preferences = this.getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        final String storedToken = preferences.getString("TokenKey", null);
+        final int storedId = preferences.getInt("UserID", 0);
+
+
+        if (storedToken == null) {
+
+            Intent intent = new Intent(this.getActivity(), LoginActivity.class);
+            startActivity(intent);
+        }
+
+        final Context context = getContext();
         final AuctionAdapters auctionAdapters = new AuctionAdapters(this.getContext(), arrayList);
         View view = inflater.inflate(R.layout.fragment_auction, container, false);
         recyclerView = view.findViewById(R.id.recylerView_auction);
@@ -117,13 +120,16 @@ public class MyBidAuctionFragment extends Fragment {
             @Override
             public void onResponse(Call<ArrayList<TblBid>> call, Response<ArrayList<TblBid>> response) {
                 mybids = response.body();
-                Log.i("TAG", "onResponse: "+response);
-                if(response.isSuccessful()&& response.body()!= null) {
+                Log.i("TAG", "onResponse: " + response);
+                if (response.isSuccessful() && response.body() != null) {
                     tblAuctionNew = filter();
                     auctionAdapters.setAuctionList(tblAuctionNew);
-                }
-                else{
+                } else {
                     Toast.makeText(getContext(), "You Have Not Made Any Bids", Toast.LENGTH_SHORT).show();
+                    ((MainActivity) context).getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, new AuctionBaseFragment())
+                            .commit();
+
                 }
             }
 
@@ -135,7 +141,11 @@ public class MyBidAuctionFragment extends Fragment {
 
         return view;
     }
+
     private ArrayList<TblAuction> filter() {
+        SharedPreferences preferences = this.getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        int storedId = preferences.getInt("UserID", 0);
+
         ArrayList<TblBid> filteredBidList = new ArrayList<>();
         ArrayList<TblAuction> filterAuctionList = new ArrayList<>();
 

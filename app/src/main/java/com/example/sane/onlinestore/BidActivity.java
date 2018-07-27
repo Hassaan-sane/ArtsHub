@@ -65,7 +65,7 @@ public class BidActivity extends AppCompatActivity {
 
         final SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         final String storedToken = preferences.getString("TokenKey", null);
-        int storedId = preferences.getInt("UserID", 0);
+        final int storedId = preferences.getInt("UserID", 0);
 
 
         if (storedToken == null) {
@@ -74,45 +74,8 @@ public class BidActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
-        final EditText BidEditText;
-        Button BtnBid;
-        BidEditText = findViewById(R.id.BidEditText);
-        BtnBid = findViewById(R.id.BtnBid);
-
-        BtnBid.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                boolean digitsOnly;
 
 
-                if (BidEditText.getText().length() <= 0) {
-                    Toast.makeText(BidActivity.this, "You did not Enter a Bid", Toast.LENGTH_SHORT).show();
-                } else if (HighestBid >= Integer.parseInt(String.valueOf(BidEditText.getText()))) {
-                    Toast.makeText(BidActivity.this, "Your Bid Is too low ", Toast.LENGTH_SHORT).show();
-                } else {
-
-                    int bidprice = Integer.parseInt(String.valueOf(BidEditText.getText()));
-
-                    BidAPI service = BidAPI.retrofit.create(BidAPI.class);
-                    Call<TblBid> PutBids = service.setBid(storedToken, itemid, userid, bidprice);
-                    PutBids.enqueue(new Callback<TblBid>() {
-                        @Override
-                        public void onResponse(Call<TblBid> call, Response<TblBid> response) {
-                            Toast.makeText(BidActivity.this, "You Made a Bid", Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onFailure(Call<TblBid> call, Throwable t) {
-                            Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
-                        }
-                    });
-
-
-                }
-                finish();
-                startActivity(getIntent());
-            }
-        });
 
 
     }
@@ -125,7 +88,7 @@ public class BidActivity extends AppCompatActivity {
         position = auctionEvent.getPosition();
         Details = auctionEvent.getMessage();
 
-        int itemidE = Details.get(position).getAuctionId();
+        final int itemidE = Details.get(position).getAuctionId();
         Log.i(TAG, "onEvent in BidActivity: " + itemid);
         int useridE = Details.get(position).getUserId() + 1;
 
@@ -158,12 +121,13 @@ public class BidActivity extends AppCompatActivity {
 
         final SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         final String storedToken = preferences.getString("TokenKey", null);
+        final int storedId = preferences.getInt("UserID", 0);
 
         BidAPI service = BidAPI.retrofit.create(BidAPI.class);
         Call<TblBid> Bids = service.getBids(storedToken, itemidE);
         Log.i(TAG, "onCreate in BiD Activity: " + itemidE);
 
-
+        final List<TblAuction> finalDetails = Details;
         Bids.enqueue(new Callback<TblBid>() {
             @Override
             public void onResponse(Call<TblBid> call, Response<TblBid> response) {
@@ -171,7 +135,7 @@ public class BidActivity extends AppCompatActivity {
                 Log.i(TAG, "onResponse in Bid: " + response.body());
 
                 if (response.body() == null) {
-                    HighestBidTextView.setText("0");
+                    HighestBidTextView.setText(finalDetails.get(position).getStartingBid());
                 } else {
                     HighestBidTextView.setText(Bid.getBidPrice());
                 }
@@ -181,6 +145,47 @@ public class BidActivity extends AppCompatActivity {
             public void onFailure(Call<TblBid> call, Throwable t) {
                 Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
 
+            }
+        });
+
+
+        final EditText BidEditText;
+        Button BtnBid;
+        BidEditText = findViewById(R.id.BidEditText);
+        BtnBid = findViewById(R.id.BtnBid);
+
+        BtnBid.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean digitsOnly;
+
+
+                if (BidEditText.getText().length() <= 0) {
+                    Toast.makeText(BidActivity.this, "You did not Enter a Bid", Toast.LENGTH_SHORT).show();
+                } else if (Integer.parseInt(HighestBidTextView.getText().toString()) >= Integer.parseInt(String.valueOf(BidEditText.getText()))) {
+                    Toast.makeText(BidActivity.this, "Your Bid Is too low ", Toast.LENGTH_SHORT).show();
+                } else {
+
+                    int bidprice = Integer.parseInt(String.valueOf(BidEditText.getText()));
+
+                    BidAPI service = BidAPI.retrofit.create(BidAPI.class);
+                    Call<TblBid> PutBids = service.setBid(storedToken,itemidE , storedId, bidprice);
+                    PutBids.enqueue(new Callback<TblBid>() {
+                        @Override
+                        public void onResponse(Call<TblBid> call, Response<TblBid> response) {
+                            Toast.makeText(BidActivity.this, "You Made a Bid", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(Call<TblBid> call, Throwable t) {
+                            Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+                        }
+                    });
+
+
+                }
+                finish();
+                startActivity(getIntent());
             }
         });
 
