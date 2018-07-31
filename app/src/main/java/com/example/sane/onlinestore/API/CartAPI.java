@@ -21,7 +21,7 @@ import retrofit2.http.Path;
 
 public interface CartAPI {
 
-    String BaseURL = "http://192.168.10.16:80/app/api/";
+    String BaseURL = "http://192.168.10.18:80/app/api/";
 
     @GET("ItemOrder/{tbl_User_UserId}/User")
     @Headers("Content-Type: application/x-www-form-urlencoded")

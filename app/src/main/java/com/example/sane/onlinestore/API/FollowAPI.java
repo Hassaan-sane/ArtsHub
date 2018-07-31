@@ -20,7 +20,7 @@ import retrofit2.http.Path;
 public interface FollowAPI {
 
 
-    String baseURL = "http://192.168.10.16/app/api/";
+    String baseURL = "http://192.168.10.18/app/api/";
 
     Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(baseURL)
@@ -44,8 +44,7 @@ public interface FollowAPI {
     @FormUrlEncoded
     Call<TblFollow> PostFollow(@Header("Authorization") String token,
                                @Field("ArtistId") int ArtistId,
-                               @Field("UserId") int UserId,
-                               @Field("FollowId") int FollowId);
+                               @Field("UserId") int UserId);
 
 
 }

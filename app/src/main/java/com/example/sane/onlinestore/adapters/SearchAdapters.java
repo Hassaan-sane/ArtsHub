@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.sane.onlinestore.Events.UserEvent;
 import com.example.sane.onlinestore.Models.TblUser;
@@ -38,6 +39,12 @@ public class SearchAdapters extends RecyclerView.Adapter<SearchAdapters.ViewHold
 
     }
 
+    public SearchAdapters(Context applicationContext, ArrayList<TblUser> arrayList) {
+        this.context = applicationContext;
+        this.UserList = arrayList;
+        UserListFull = new ArrayList<>(arrayList);
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.search_list, parent, false);
@@ -45,25 +52,6 @@ public class SearchAdapters extends RecyclerView.Adapter<SearchAdapters.ViewHold
         return viewHolder;
     }
 
-    @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
-        TblUser currentItem = UserList.get(position);
-        String AN;
-
-        holder.ArtistName.setText(this.UserList.get(position).getName().toString());
-        AN = this.UserList.get(position).getName();
-        Log.i("searchAdaper", "onBindViewHolder: " + AN);
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-
-                EventBus.getDefault().postSticky(new UserEvent(UserList, position));
-                Intent intent = new Intent(context, ProfileSearchResult.class);
-                context.startActivity(intent);
-            }
-        });
-    }
 
     @Override
     public int getItemCount() {
@@ -109,8 +97,6 @@ public class SearchAdapters extends RecyclerView.Adapter<SearchAdapters.ViewHold
         }
     };
 
-    public void setArtistList(ArrayList<TblUser> artistList) {
-    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -120,6 +106,32 @@ public class SearchAdapters extends RecyclerView.Adapter<SearchAdapters.ViewHold
             super(itemView);
             ArtistName = itemView.findViewById(R.id.ArtistName);
         }
+    }
+
+
+    @Override
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
+        TblUser currentItem = UserList.get(position);
+        String AN;
+
+        holder.ArtistName.setText(this.UserList.get(position).getName().toString());
+        AN = this.UserList.get(position).getName();
+        Log.i("searchAdaper", "onBindViewHolder: " + AN);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                if (UserList.get(position).getRole().toLowerCase().equals("r")) {
+                    EventBus.getDefault().postSticky(new UserEvent(UserList, position));
+                    Intent intent = new Intent(context, ProfileSearchResult.class);
+                    intent.putExtra("Id",UserList.get(position).getUserId());
+                    context.startActivity(intent);
+                } else {
+                    Toast.makeText(context, "You cannot visit Other User if he is not an artist", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 
     public void filterList(ArrayList<TblUser> filteredList) {

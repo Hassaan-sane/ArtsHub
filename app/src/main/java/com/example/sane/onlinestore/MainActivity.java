@@ -1,6 +1,8 @@
 package com.example.sane.onlinestore;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -18,12 +20,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import android.widget.Toast;
@@ -39,6 +44,7 @@ import com.example.sane.onlinestore.Fragments.NotificationFragment;
 import com.example.sane.onlinestore.Fragments.SearchFragment;
 import com.example.sane.onlinestore.Models.TblCategory;
 import com.example.sane.onlinestore.Models.TblItem;
+import com.example.sane.onlinestore.Models.TblItemNotification;
 import com.example.sane.onlinestore.adapters.ProductAdapters;
 import com.example.sane.onlinestore.adapters.SearchAdapters;
 import com.example.sane.onlinestore.adapters.SearchProductAdapters;
@@ -116,9 +122,11 @@ public class MainActivity extends AppCompatActivity {
                     if (storedRole.equals("R")) {
                         Intent intent = new Intent(getApplicationContext(), ProfileArtistActivity.class);
                         startActivity(intent);
+                        finish();
                     } else {
                         Intent intent = new Intent(getApplicationContext(), UserProfileActivity.class);
                         startActivity(intent);
+                        finish();
                     }
                     Toast.makeText(MainActivity.this, "Profile", Toast.LENGTH_SHORT).show();
                     return true;
@@ -162,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 productAdapter.getFilter().filter(newText);
-//                searchAdapters.getFilter().filter(newText);
+
                 return false;
             }
         });
@@ -174,15 +182,7 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-//        if (id == R.id.navigation_search2) {
-//            transaction.replace(R.id.container, new SearchFragment()).commit();
-//            return true;
-//        }
 
 
         return super.onOptionsItemSelected(item);
@@ -205,25 +205,18 @@ public class MainActivity extends AppCompatActivity {
         storedId = preferences.getInt("UserID", 0);
         storedRole = preferences.getString("Role", null);
 
-
+        Log.i(TAG, "onCreate: " + storedToken);
         if (storedToken == null) {
 
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(intent);
         }
 
-        Log.i(TAG, "onCreate: " + storedToken);
 
         mTextMessage = (TextView) findViewById(R.id.message);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-//        FragmentManager fragmentManager = getSupportFragmentManager();
-//        FragmentTransaction transaction = fragmentManager.beginTransaction();
-//
-//        transaction.replace(R.id.container, new HomeFragment()).commit();
-//        Toast.makeText(MainActivity.this, "Home", Toast.LENGTH_SHORT).show();
 
 
         productAdapter = new ProductAdapters(arrayList, getApplicationContext(), storedId, storedToken);
@@ -233,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(productAdapter);
 
-        HomeAPI service = HomeAPI.retrofit.create(HomeAPI.class);
+        final HomeAPI service = HomeAPI.retrofit.create(HomeAPI.class);
         Call<ArrayList<TblItem>> ItemList = service.getItemList(storedToken);
         ItemList.enqueue(new Callback<ArrayList<TblItem>>() {
             @Override
@@ -244,6 +237,45 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "onResponse2: " + ItemDetails);
 
                 progressDialog.dismiss();
+//                Call<ArrayList<TblItemNotification>> GetItemNoti = service.GetItemNotification(storedToken);
+//                GetItemNoti.enqueue(new Callback<ArrayList<TblItemNotification>>() {
+//                    @Override
+//                    public void onResponse(Call<ArrayList<TblItemNotification>> call, Response<ArrayList<TblItemNotification>> response) {
+//                        ArrayList<TblItemNotification> tblItemNotification = response.body();
+//                        Log.i(TAG, "onResponse in item noti: " + response);
+//
+//                        if (response != null && tblItemNotification.get(1).getViewTime() == null) {
+//                            TblItemNotification itemNotification = tblItemNotification.get(1);
+//                            Call<ArrayList<TblItemNotification>> GetItemNoti = service.PutItemNotification(storedToken,
+//                                    itemNotification.getBuyerId(),
+//                                    itemNotification.getSellerId(),
+//                                    itemNotification.getItemId(),
+//                                    "2-8-18",
+//                                    itemNotification.getNotificationId(),
+//                                    itemNotification.getNotificationId());
+//                            GetItemNoti.enqueue(new Callback<ArrayList<TblItemNotification>>() {
+//                                @Override
+//                                public void onResponse(Call<ArrayList<TblItemNotification>> call, Response<ArrayList<TblItemNotification>> response) {
+//                                    ArrayList<TblItemNotification> tblItemNotification = response.body();
+//                                    Log.i(TAG, "onResponse in put item noti: " + response);
+//                                }
+//
+//                                @Override
+//                                public void onFailure(Call<ArrayList<TblItemNotification>> call, Throwable t) {
+//                                    Log.i(TAG, "onFailure in Noti: " + call + " Throwable: " + t);
+//                                }
+//
+//                            });
+//
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<ArrayList<TblItemNotification>> call, Throwable t) {
+//                        Log.i(TAG, "onFailure in Noti: " + call + " Throwable: " + t);
+//                    }
+//
+//                });
             }
 
             @Override
@@ -253,39 +285,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
     }
-
 
     public void onBackPressed() {
 //        final SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
 //        String storedToken = preferences.getString("TokenKey", null);
 //        int storedId = preferences.getInt("UserID", 0);
-//
 //        preferences.edit().clear().commit();
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-////        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        //intent.putExtra("EXIT", true);
-        startActivity(intent);
-////        finish();
 
-//        if (doubleBackToExitPressedOnce) {
-//            super.onBackPressed();
-//            return;
-//        }
-//        this.doubleBackToExitPressedOnce = true;
-//        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
-//
-//        new Handler().postDelayed(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                doubleBackToExitPressedOnce = false;
-//            }
-//        }, 2000);
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
+//        finish();
 
 
     }
+
 
 
 }

@@ -4,19 +4,30 @@ import android.app.DatePickerDialog;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.sane.onlinestore.API.AuctionAPI;
 import com.example.sane.onlinestore.Fragments.DatePickerFragment;
 import com.example.sane.onlinestore.Models.TblAuction;
+import com.example.sane.onlinestore.Models.TblAuctionDetail;
 
+import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,6 +38,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.content.ContentValues.TAG;
 import static android.provider.ContactsContract.CommonDataKinds.Event.START_DATE;
 
 public class AddAuctionActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
@@ -35,6 +47,9 @@ public class AddAuctionActivity extends AppCompatActivity implements DatePickerD
     static final int START_DATE = 1;
     static final int END_DATE = 2;
     private int mChosenDate;
+
+    private static final int PICK_IMAGE = 100;
+    private String ImageStr;
 
     int cur = 0;
 
@@ -67,6 +82,7 @@ public class AddAuctionActivity extends AppCompatActivity implements DatePickerD
         Button BtnStartDate = findViewById(R.id.BtnPickStartDate);
         Button BtnEndDate = findViewById(R.id.BtnPickEndDate);
         Button BtnSubmit = findViewById(R.id.BtnSubmitAuction);
+        Button BtnPicImg = findViewById(R.id.BtnPickImage);
 
         BtnStartDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,26 +103,52 @@ public class AddAuctionActivity extends AppCompatActivity implements DatePickerD
 
             }
         });
+        BtnPicImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGallery();
+            }
+        });
 
         BtnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                final String Title,Desc;
+                final String Title, Desc;
                 final int Bid;
-                Title=AuctionTitle.getText().toString();
+                Title = AuctionTitle.getText().toString();
                 Desc = AuctionDesc.getText().toString();
                 Bid = Integer.parseInt(StartBid.getText().toString());
 
-                AuctionAPI service = AuctionAPI.retrofit.create(AuctionAPI.class);
-                Call<TblAuction> PostAuction= service
-                        .PostAuction(storedToken,Title,formatEndDate,storedId,Desc,Bid,formatStartDate);
+                final AuctionAPI service = AuctionAPI.retrofit.create(AuctionAPI.class);
+                Call<TblAuction> PostAuction = service
+                        .PostAuction(storedToken, Title, formatEndDate, storedId, Desc, Bid, formatStartDate);
 
                 PostAuction.enqueue(new Callback<TblAuction>() {
                     @Override
                     public void onResponse(Call<TblAuction> call, Response<TblAuction> response) {
                         TblAuction tblAuction = response.body();
-                        Log.i("onresoponse", "onResponse: "+response.toString());
+                        Log.i("onresoponse", "onResponse: " + response.toString());
+                        if (response.isSuccessful() && ImageStr != null) {
+
+                            Call<TblAuctionDetail> PostAucDetail = service.PostAuctionDetail(storedToken,
+                                    tblAuction.getAuctionId(),
+                                    ImageStr);
+                            PostAucDetail.enqueue(new Callback<TblAuctionDetail>() {
+                                @Override
+                                public void onResponse(Call<TblAuctionDetail> call, Response<TblAuctionDetail> response) {
+                                    Log.i(TAG, "onResponse in auc detail: " + response);
+
+                                }
+
+                                @Override
+                                public void onFailure(Call<TblAuctionDetail> call, Throwable t) {
+
+                                    Log.i("AuctionPostFaliure", "AuctionPostDetailFaliure" + call + " Throwable: " + t);
+                                }
+                            });
+
+                        }
 
                     }
 
@@ -129,7 +171,6 @@ public class AddAuctionActivity extends AppCompatActivity implements DatePickerD
 
         SimpleDateFormat Formatout = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         SimpleDateFormat Format = new SimpleDateFormat("dd MMM yyyy");
-
 
 
         switch (mChosenDate) {
@@ -178,5 +219,60 @@ public class AddAuctionActivity extends AppCompatActivity implements DatePickerD
 
     }
 
+    private void openGallery() {
+        Intent gallery =
+                new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+        startActivityForResult(gallery, PICK_IMAGE);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public void onActivityResult(final int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        String storedToken = preferences.getString("TokenKey", null);
+        int storedid = preferences.getInt("UserID", 0);
+
+        if (requestCode == PICK_IMAGE && null != data) {
+            if (resultCode == RESULT_OK) {
+
+                Uri selectedImage = data.getData();
+
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+                Cursor cursor = getContentResolver().query(selectedImage,
+                        filePathColumn, null, null, null);
+                cursor.moveToFirst();
+                int columnIndex = cursor
+                        .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                cursor.moveToFirst();
+
+                String picturePath = cursor.getString(columnIndex);
+
+                cursor.close();
+
+                ImageView imageView = findViewById(R.id.ImageViewAuction);
+                imageView.setImageURI(selectedImage);
+
+                ImageStr = ImageConvert(picturePath);
+
+
+            }
+        }
+    }
+
+    public String ImageConvert(String path) {
+
+        Bitmap bm = BitmapFactory.decodeFile(path);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+        final byte[] b = baos.toByteArray();
+
+        String encodedImage = Base64.encodeToString(b, Base64.CRLF);
+        Log.i("encodedImage", "encodedImagee: " + encodedImage);
+        return encodedImage;
+    }
 
 }

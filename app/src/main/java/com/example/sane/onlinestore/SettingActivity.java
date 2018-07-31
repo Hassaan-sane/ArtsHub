@@ -49,7 +49,7 @@ public class SettingActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 preferences.edit().clear().commit();
-                Intent i = new Intent(SettingActivity.this, SettingActivity.class);
+                Intent i = new Intent(SettingActivity.this, LoginActivity.class);
                 startActivity(i);
             }
         });

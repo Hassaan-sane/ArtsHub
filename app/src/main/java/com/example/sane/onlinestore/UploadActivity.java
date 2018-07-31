@@ -182,7 +182,7 @@ public class UploadActivity extends AppCompatActivity {
 
                UserAPI service = UserAPI.retrofit.create(UserAPI.class);
                 Call<TblUserDetail> UserDetails = service
-                        .addUserDetail(storedToken, storedid, "0322", "abcd@gmail.com", "1223 Lahore", encodedImage);
+                        .addUserDetail(storedToken, storedid, "0322", "hassaan@gmail.com", "1223 Lahore", encodedImage);
 
                 UserDetails.enqueue(new Callback<TblUserDetail>() {
                     @Override

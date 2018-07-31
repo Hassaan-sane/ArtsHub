@@ -12,6 +12,9 @@ public class TblItem{
     @SerializedName("tbl_ItemOrder")
     @Expose
     private List<Object> tblItemOrder = null;
+    @SerializedName("tbl_ItemNotification")
+    @Expose
+    private List<Object> tblItemNotification = null;
     @SerializedName("tbl_Shipping")
     @Expose
     private List<Object> tblShipping = null;
@@ -71,6 +74,7 @@ public class TblItem{
         this.categoryId = categoryId;
         this.quantity = quantity;
     }
+
 
     public List<Object> getTblItemDetail() {
         return tblItemDetail;
@@ -152,5 +156,12 @@ public class TblItem{
         this.quantity = quantity;
     }
 
+    public List<Object> getTblItemNotification() {
+        return tblItemNotification;
+    }
+
+    public void setTblItemNotification(List<Object> tblItemNotification) {
+        this.tblItemNotification = tblItemNotification;
+    }
 }
 

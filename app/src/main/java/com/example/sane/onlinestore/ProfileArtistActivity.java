@@ -67,8 +67,8 @@ public class ProfileArtistActivity extends AppCompatActivity {
                     Toast.makeText(ProfileArtistActivity.this, "auc req", Toast.LENGTH_SHORT).show();
                     return true;
                 case R.id.nav_Auctions:
-//                    Intent intent2 = new Intent(getApplicationContext(), PostingActivity.class);
-//                    startActivity(intent2);
+                    Intent intent2 = new Intent(getApplicationContext(), MyAuctionsActivity.class);
+                    startActivity(intent2);
                     return true;
 
                 case R.id.nav_settings:

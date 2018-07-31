@@ -2,6 +2,7 @@ package com.example.sane.onlinestore.API;
 
 import com.example.sane.onlinestore.Models.TblArtistPost;
 import com.example.sane.onlinestore.Models.TblComplaint;
+import com.example.sane.onlinestore.Models.TblItemNotification;
 import com.example.sane.onlinestore.Models.TblPostNotification;
 import com.example.sane.onlinestore.Models.TblUser;
 
@@ -21,7 +22,7 @@ import retrofit2.http.Path;
 
 public interface ArtistAPI {
 
-    String baseURL = "http://192.168.10.16:80/app/api/";
+    String baseURL = "http://192.168.10.18:80/app/api/";
 
     @POST("ArtistPost")
     @Headers("Content-Type: application/x-www-form-urlencoded")
@@ -40,7 +41,7 @@ public interface ArtistAPI {
     @GET("PostNotification/{UserId}/User")
     @Headers("Content-Type: application/x-www-form-urlencoded")
     Call<ArrayList<TblPostNotification>> GetPostNotification(@Header("Authorization") String token,
-                                                  @Path("UserId") int UserId
+                                                             @Path("UserId") int UserId
     );
 
 
@@ -56,13 +57,16 @@ public interface ArtistAPI {
     @POST("Complaint")
     @Headers("Content-Type: application/x-www-form-urlencoded")
     @FormUrlEncoded
-            Call<TblComplaint> AddComplaint(@Header("Authorization") String token,
-                                            @Field("Title") String title,
-                                            @Field("Description") String Desc,
-                                            @Field("UserId") int userid,
-                                            @Field("ComplaintId") int CompId
+    Call<TblComplaint> AddComplaint(@Header("Authorization") String token,
+                                    @Field("Title") String title,
+                                    @Field("Description") String Desc,
+                                    @Field("UserId") int userid,
+                                    @Field("ComplaintId") int CompId
 
     );
+
+
+
 
     Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(baseURL)

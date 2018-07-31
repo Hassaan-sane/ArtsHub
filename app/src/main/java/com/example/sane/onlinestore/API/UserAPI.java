@@ -34,7 +34,7 @@ import static android.content.Context.MODE_PRIVATE;
 public interface UserAPI {
 
 
-    String baseURL = "http://192.168.10.16:80/app/";
+    String baseURL = "http://192.168.10.18:80/app/";
 
     @GET("api/User")
     @Headers("Content-Type: application/x-www-form-urlencoded")
@@ -117,12 +117,6 @@ public interface UserAPI {
             @Field("userName") String email,
             @Field("Password") String password,
             @Field("grant_type") String grantype
-//                    @Field("access_token") String Token,
-//                    @Field("token_type") String tokenType,
-//                    @Field("UserName") String userName,
-//                    @Field("expires_in") Integer expiresIn,
-//                    @Field(".issued") String issued,
-//                    @Field(".expires") String expires
 
     );
 

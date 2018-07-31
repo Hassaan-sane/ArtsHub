@@ -30,8 +30,9 @@ public class ProfileSearchResult extends AppCompatActivity {
     List<TblUser> userList;
     ArrayList<TblFollow> FollowerList;
     int position;
-    Boolean IsFollowed = false;
-
+    private Boolean IsFollowed = false;
+    private Button BtnFollow;
+    private Button BtnUnFollow;
 
     @Override
     protected void onStart() {
@@ -57,32 +58,54 @@ public class ProfileSearchResult extends AppCompatActivity {
 
 
         if (storedToken == null) {
-
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(intent);
         }
+
         final FollowAPI service = FollowAPI.retrofit.create(FollowAPI.class);
-        Button BtnFollow = findViewById(R.id.BtnPS_FollowProfile);
-        Button BtnUnFollow = findViewById(R.id.BtnPS_UnFollowProfile);
+        BtnFollow = findViewById(R.id.BtnPS_FollowProfile);
+        BtnUnFollow = findViewById(R.id.BtnPS_UnFollowProfile);
+        final int ArtistID = 0;
+        Intent i = getIntent();
+        i.getIntExtra("Id", ArtistID);
+
+        final TextView Followers = findViewById(R.id.PS_FollowersTextView);
+
+        Call<ArrayList<TblFollow>> GetFollowers = service.getFollowList(storedToken, ArtistID);
+        GetFollowers.enqueue(new Callback<ArrayList<TblFollow>>() {
+            @Override
+            public void onResponse(Call<ArrayList<TblFollow>> call, Response<ArrayList<TblFollow>> response) {
+                FollowerList = response.body();
+                int NumberOfFollowers = FollowerList.size();
+                for (TblFollow item : FollowerList) {
+                    if (storedId == item.getUserId()) {
+                        IsFollowed = true;
+                        BtnFollow.setVisibility(View.GONE);
+                        BtnUnFollow.setVisibility(View.VISIBLE);
+
+                    } else {
+                        BtnUnFollow.setVisibility(View.GONE);
+                        BtnFollow.setVisibility(View.VISIBLE);
+                    }
+                }
+                Followers.setText("" + NumberOfFollowers);
+
+
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<TblFollow>> call, Throwable t) {
+                Log.i("inProfile onc", "onFailure: " + call + " Throwable: " + t);
+            }
+        });
+
         if (IsFollowed == true) {
             BtnFollow.setVisibility(View.GONE);
             BtnUnFollow.setVisibility(View.VISIBLE);
-            final int ArtistID = userList.get(position).getUserId();
             BtnUnFollow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Call<TblFollow> UnFollow = service.DeleteFollow(storedToken, ArtistID, storedId);
-                    UnFollow.enqueue(new Callback<TblFollow>() {
-                        @Override
-                        public void onResponse(Call<TblFollow> call, Response<TblFollow> response) {
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<TblFollow> call, Throwable t) {
-                            Log.i("inProfile", "onFailure: " + call + " Throwable: " + t);
-                        }
-                    });
+                    Unfollow();
                 }
             });
         } else {
@@ -92,28 +115,10 @@ public class ProfileSearchResult extends AppCompatActivity {
             BtnFollow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    int ArtistID = userList.get(position).getUserId();
-
-                    Call<TblFollow> PostFollow = service.PostFollow(storedToken, ArtistID, storedId, 1);
-                    PostFollow.enqueue(new Callback<TblFollow>() {
-                        @Override
-                        public void onResponse(Call<TblFollow> call, Response<TblFollow> response) {
-                            TblFollow tblFollow = response.body();
-                        }
-
-                        @Override
-                        public void onFailure(Call<TblFollow> call, Throwable t) {
-                            Log.i("inProfile", "onFailure: " + call + " Throwable: " + t);
-
-                        }
-                    });
-
-
+                    follow();
                 }
             });
         }
-
-
     }
 
 
@@ -121,7 +126,7 @@ public class ProfileSearchResult extends AppCompatActivity {
     public void onEvent(UserEvent userEvent) {
 
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        String storedToken = preferences.getString("TokenKey", null);
+        final String storedToken = preferences.getString("TokenKey", null);
         final int storedId = preferences.getInt("UserID", 0);
 
         userList = userEvent.getUser();
@@ -144,31 +149,119 @@ public class ProfileSearchResult extends AppCompatActivity {
         final int ArtistID = userList.get(position).getUserId();
 
         final TextView Followers = findViewById(R.id.PS_FollowersTextView);
+        BtnFollow = findViewById(R.id.BtnPS_FollowProfile);
+        BtnUnFollow = findViewById(R.id.BtnPS_UnFollowProfile);
+
+
         final int[] temp = new int[1];
-        FollowAPI service = FollowAPI.retrofit.create(FollowAPI.class);
+        final FollowAPI service = FollowAPI.retrofit.create(FollowAPI.class);
         Call<ArrayList<TblFollow>> GetFollowers = service.getFollowList(storedToken, ArtistID);
         GetFollowers.enqueue(new Callback<ArrayList<TblFollow>>() {
             @Override
             public void onResponse(Call<ArrayList<TblFollow>> call, Response<ArrayList<TblFollow>> response) {
                 FollowerList = response.body();
-                int NumberOfFollowers = 0;
+                int NumberOfFollowers = FollowerList.size();
                 for (TblFollow item : FollowerList) {
-                    if (item.getArtistId().equals(ArtistID)) {
-                        NumberOfFollowers = NumberOfFollowers + 1;
-                        if (storedId == ArtistID) {
-                            IsFollowed = true;
-                        }
+                    if (storedId == item.getUserId()) {
+                        IsFollowed = true;
+                        BtnFollow.setVisibility(View.GONE);
+                        BtnUnFollow.setVisibility(View.VISIBLE);
+
+                    } else {
+                        BtnUnFollow.setVisibility(View.GONE);
+                        BtnFollow.setVisibility(View.VISIBLE);
                     }
                 }
+
                 Followers.setText("" + NumberOfFollowers);
+
+
             }
 
             @Override
             public void onFailure(Call<ArrayList<TblFollow>> call, Throwable t) {
-                Log.i("inProfile", "onFailure: " + call + " Throwable: " + t);
+                Log.i("inProfile in ev", "onFailure: " + call + " Throwable: " + t);
             }
         });
 
+        if (IsFollowed == true) {
+            BtnFollow.setVisibility(View.GONE);
+            BtnUnFollow.setVisibility(View.VISIBLE);
+            BtnUnFollow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                   Unfollow();
+                }
+            });
+        } else {
+
+            BtnFollow.setVisibility(View.VISIBLE);
+            BtnUnFollow.setVisibility(View.GONE);
+            BtnFollow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    follow();
+
+                }
+            });
+        }
+
 
     }
+
+    public void follow() {
+
+        SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        final String storedToken = preferences.getString("TokenKey", null);
+        final int storedId = preferences.getInt("UserID", 0);
+        final FollowAPI service = FollowAPI.retrofit.create(FollowAPI.class);
+        final int ArtistID = userList.get(position).getUserId();
+        final TextView Followers = findViewById(R.id.PS_FollowersTextView);
+        Call<TblFollow> PostFollow = service.PostFollow(storedToken, ArtistID, storedId);
+        PostFollow.enqueue(new Callback<TblFollow>() {
+            @Override
+            public void onResponse(Call<TblFollow> call, Response<TblFollow> response) {
+                TblFollow tblFollow = response.body();
+                Log.i("in FOllow", "onResponse: " + response);
+                BtnFollow.setVisibility(View.GONE);
+                BtnUnFollow.setVisibility(View.VISIBLE);
+                IsFollowed = true;
+                finish();
+                startActivity(getIntent());
+
+            }
+
+            @Override
+            public void onFailure(Call<TblFollow> call, Throwable t) {
+                Log.i("inProfile in cr infal", "onFailure: " + call + " Throwable: " + t);
+
+            }
+        });
+    }
+
+    public void Unfollow() {
+        SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        final String storedToken = preferences.getString("TokenKey", null);
+        final int storedId = preferences.getInt("UserID", 0);
+        final FollowAPI service = FollowAPI.retrofit.create(FollowAPI.class);
+        final int ArtistID = userList.get(position).getUserId();
+        Call<TblFollow> UnFollow = service.DeleteFollow(storedToken, ArtistID, storedId);
+        UnFollow.enqueue(new Callback<TblFollow>() {
+            @Override
+            public void onResponse(Call<TblFollow> call, Response<TblFollow> response) {
+                Log.i("In UNfollow", "onResponse: " + response);
+                BtnFollow.setVisibility(View.VISIBLE);
+                BtnUnFollow.setVisibility(View.GONE);
+                IsFollowed = false;
+                finish();
+                startActivity(getIntent());
+            }
+
+            @Override
+            public void onFailure(Call<TblFollow> call, Throwable t) {
+                Log.i("inProfile in cr in tru", "onFailure: " + call + " Throwable: " + t);
+            }
+        });
+    }
+
 }

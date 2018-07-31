@@ -169,12 +169,15 @@ public class Item {
     @SerializedName("tbl_ItemDetail")
     @Expose
     private List<Object> tblItemDetail = null;
+    @SerializedName("tbl_ItemNotification")
+    @Expose
+    private List<Object> tblItemNotification = null;
     @SerializedName("tbl_ItemOrder")
     @Expose
     private List<Object> tblItemOrder = null;
     @SerializedName("tbl_Shipping")
     @Expose
-    private List<Object> tblShipping = null;
+    private List<TblShipping> tblShipping = null;
     @SerializedName("ItemId")
     @Expose
     private Integer itemId;
@@ -214,10 +217,24 @@ public class Item {
      * @param tblCategory
      * @param discount
      */
-    public Item(TblCategory tblCategory, List<Object> tblItemDetail, List<Object> tblItemOrder, List<Object> tblShipping, Integer itemId, String itemName, String itemDesc, String price, String discount, Integer categoryId) {
+    public Item(TblCategory tblCategory, List<Object> tblItemDetail, List<Object> tblItemOrder, List<TblShipping> tblShipping, Integer itemId, String itemName, String itemDesc, String price, String discount, Integer categoryId) {
         super();
         this.tblCategory = tblCategory;
         this.tblItemDetail = tblItemDetail;
+        this.tblItemOrder = tblItemOrder;
+        this.tblShipping = tblShipping;
+        this.itemId = itemId;
+        this.itemName = itemName;
+        this.itemDesc = itemDesc;
+        this.price = price;
+        this.discount = discount;
+        this.categoryId = categoryId;
+    }
+
+    public Item(TblCategory tblCategory, List<Object> tblItemDetail, List<Object> tblItemNotification, List<Object> tblItemOrder, List<TblShipping> tblShipping, Integer itemId, String itemName, String itemDesc, String price, String discount, Integer categoryId) {
+        this.tblCategory = tblCategory;
+        this.tblItemDetail = tblItemDetail;
+        this.tblItemNotification = tblItemNotification;
         this.tblItemOrder = tblItemOrder;
         this.tblShipping = tblShipping;
         this.itemId = itemId;
@@ -252,11 +269,11 @@ public class Item {
         this.tblItemOrder = tblItemOrder;
     }
 
-    public List<Object> getTblShipping() {
+    public List<TblShipping> getTblShipping() {
         return tblShipping;
     }
 
-    public void setTblShipping(List<Object> tblShipping) {
+    public void setTblShipping(List<TblShipping> tblShipping) {
         this.tblShipping = tblShipping;
     }
 
@@ -308,5 +325,11 @@ public class Item {
         this.categoryId = categoryId;
     }
 
+    public List<Object> getTblItemNotification() {
+        return tblItemNotification;
+    }
 
+    public void setTblItemNotification(List<Object> tblItemNotification) {
+        this.tblItemNotification = tblItemNotification;
+    }
 }

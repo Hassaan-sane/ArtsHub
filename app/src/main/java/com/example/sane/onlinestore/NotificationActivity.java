@@ -1,5 +1,6 @@
 package com.example.sane.onlinestore;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,6 +29,12 @@ public class NotificationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification);
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMax(100);
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setTitle("Fetching Data");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
 
         final SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         final String storedToken = preferences.getString("TokenKey", null);
@@ -54,6 +61,7 @@ public class NotificationActivity extends AppCompatActivity {
             public void onResponse(Call<ArrayList<TblPostNotification>> call, Response<ArrayList<TblPostNotification>> response) {
                 NotiList = response.body();
                 notificationAdapters.SetNoti(NotiList);
+                progressDialog.dismiss();
 
             }
 

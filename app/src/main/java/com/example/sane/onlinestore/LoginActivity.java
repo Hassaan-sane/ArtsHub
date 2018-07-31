@@ -31,7 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     public static final String MyPREFERENCES = "MyPrefs";
     public static final String Token = "TokenKey";
     public static final String UserID = "UserID";
-    private  ProgressDialog progressDialog;
+    private ProgressDialog progressDialog;
 
     SharedPreferences sharedpreferences;
 
@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-               progressDialog = new ProgressDialog(LoginActivity.this);
+                progressDialog = new ProgressDialog(LoginActivity.this);
                 progressDialog.setMax(100);
                 progressDialog.setMessage("Please wait...");
                 progressDialog.setTitle("Fetching Data");
@@ -130,9 +130,9 @@ public class LoginActivity extends AppCompatActivity {
                                         editor.commit();
                                         editor.apply();
 
-
-                                            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                                            startActivity(intent);
+                                        progressDialog.dismiss();
+                                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                        startActivity(intent);
 
                                     }
 
@@ -154,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
                             Toast.makeText(LoginActivity.this, "Signed IN" + response.toString(), Toast.LENGTH_LONG).show();
-                            progressDialog.dismiss();
+
                         }
 
                         @Override

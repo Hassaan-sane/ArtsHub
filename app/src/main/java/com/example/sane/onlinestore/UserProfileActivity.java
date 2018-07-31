@@ -1,6 +1,9 @@
 package com.example.sane.onlinestore;
 
 import android.app.ProgressDialog;
+import android.app.SearchManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -11,9 +14,12 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,25 +57,34 @@ public class UserProfileActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.nav_user_homepage:
-                  //  mTextMessage.setText(R.string.title_home);
+                    //  mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.nav_user_noti:
                     //mTextMessage.setText("My Bids");
                     Intent intent = new Intent(getApplicationContext(), NotificationActivity.class);
                     startActivity(intent);
                     return true;
+
+                case R.id.nav_user_artist_search:
+                    Intent intentsearch = new Intent(getApplicationContext(), SearchActivity.class);
+                    startActivity(intentsearch);
+                    finish();
+                    return true;
+
+
                 case R.id.nav_user_settings:
                     // mTextMessage.setText("Settings");
                     Intent i = new Intent(getApplicationContext(), SettingActivity.class);
-                    i.putExtra("Name",tblUser.getName());
-                    i.putExtra("Phone",tblUser.getTblUserDetail().getPhone());
-                    i.putExtra("Address",tblUser.getTblUserDetail().getAddress());
+                    i.putExtra("Name", tblUser.getName());
+                    i.putExtra("Phone", tblUser.getTblUserDetail().getPhone());
+                    i.putExtra("Address", tblUser.getTblUserDetail().getAddress());
                     startActivity(i);
                     return true;
             }
             return false;
         }
     };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,23 +136,38 @@ public class UserProfileActivity extends AppCompatActivity {
                 Username.setText(tblUser.getUsername());
                 Email.setText(tblUser.getTblUserDetail().getEmail());
                 Phone.setText(tblUser.getTblUserDetail().getPhone());
-               progressDialog.dismiss();
-
-                img = tblUser.getTblUserDetail().getUserImage();
-                byte[] decodedString = Base64.decode(img, Base64.DEFAULT);
-                Bitmap bm = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                userImg.setImageBitmap(bm);
-
-
+                progressDialog.dismiss();
             }
 
             @Override
             public void onFailure(Call<TblUser> call, Throwable t) {
-                Log.i("ArtistProfileFaliure", "ArtistProfileFaliure" + call + " Throwable: " + t);
+                Log.i("UserProfileFaliure", "UserProfileFaliure" + call + " Throwable: " + t);
             }
         });
 
-//
+        Call<TblUserDetail> GetUserImage = service.getUserDetail(storedToken, storedId);
+        GetUserImage.enqueue(new Callback<TblUserDetail>() {
+            @Override
+            public void onResponse(Call<TblUserDetail> call, Response<TblUserDetail> response) {
+                TblUserDetail tblUserDetail = response.body();
+
+                String temp = tblUserDetail.getUserImage();
+                byte[] decodedString = Base64.decode(temp, Base64.DEFAULT);
+
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                userImg.setImageBitmap(decodedByte);
+                Log.i(TAG, "onResponse in usr pr img bm: " +decodedByte);
+                Log.i(TAG, "onResponse: " + decodedString);
+            }
+
+            @Override
+            public void onFailure(Call<TblUserDetail> call, Throwable t) {
+
+                Log.i(TAG, "onFailure: Call: " + call + " Throwable: " + t);
+            }
+        });
+    }
+
 //        final ImageView userImage = findViewById(R.id.img_user_profile);
 //
 //        UserAPI service = UserAPI.retrofit.create(UserAPI.class);
@@ -170,7 +200,6 @@ public class UserProfileActivity extends AppCompatActivity {
 //            }
 //        });
 
-    }
 
     public void onBackPressed() {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
