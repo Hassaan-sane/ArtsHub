@@ -121,19 +121,17 @@
                 android:background="@drawable/ic_remove_color_24dp" />
         </LinearLayout>
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:gravity="center"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/BtnRemoveItem"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button"
-                android:gravity="center"
-                android:text="Remove" />
+                android:background="@drawable/ic_delete_"
+                 />
         </LinearLayout>
 
     </LinearLayout>

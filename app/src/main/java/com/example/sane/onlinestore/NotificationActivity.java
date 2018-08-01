@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import com.example.sane.onlinestore.API.ArtistAPI;
@@ -15,6 +16,7 @@ import com.example.sane.onlinestore.Models.TblPostNotification;
 import com.example.sane.onlinestore.adapters.NotificationAdapters;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,6 +24,7 @@ import retrofit2.Response;
 
 public class NotificationActivity extends AppCompatActivity {
     private ArrayList<TblPostNotification> NotiList = new ArrayList<>();
+    private ArrayList<TblPostNotification> NotiListnew = new ArrayList<>();
     private Context context;
     private RecyclerView recyclerView;
 
@@ -46,7 +49,7 @@ public class NotificationActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(intent);
         }
-        final NotificationAdapters notificationAdapters = new NotificationAdapters(NotiList);
+        final NotificationAdapters notificationAdapters = new NotificationAdapters(NotiList, NotificationActivity.this);
         recyclerView = findViewById(R.id.recylerView_Noti);
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
@@ -60,15 +63,39 @@ public class NotificationActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ArrayList<TblPostNotification>> call, Response<ArrayList<TblPostNotification>> response) {
                 NotiList = response.body();
-                notificationAdapters.SetNoti(NotiList);
+
+                NotiListnew = filteredList();
+                Collections.reverse(NotiListnew);
+                notificationAdapters.SetNoti(NotiListnew);
                 progressDialog.dismiss();
 
             }
 
             @Override
             public void onFailure(Call<ArrayList<TblPostNotification>> call, Throwable t) {
-
+                Log.i("TAG", "onFailure in GetPostNoti Act: " + call + " Throwable: " + t);
             }
         });
+    }
+
+    public ArrayList<TblPostNotification> filteredList(){
+        ArrayList<TblPostNotification> filteredList = new ArrayList<>();
+
+        for(TblPostNotification item: NotiList )
+        {
+            if(item.getViewTime()==null){
+                filteredList.add(item);
+            }
+        }
+
+
+        return filteredList;
+    }
+
+    @Override
+    public void onBackPressed() {
+       Intent intent = new Intent(NotificationActivity.this, UserProfileActivity.class);
+       startActivity(intent);
+       finish();
     }
 }

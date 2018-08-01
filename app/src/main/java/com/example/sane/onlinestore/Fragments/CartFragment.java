@@ -1,11 +1,13 @@
 package com.example.sane.onlinestore.Fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -104,6 +106,7 @@ public class CartFragment extends Fragment {
 
     @Override
     public void onStart() {
+        EventBus.getDefault().register(this);
         super.onStart();
 
     }
@@ -122,7 +125,15 @@ public class CartFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
 
+        final ProgressDialog progressDialog = new ProgressDialog(this.getActivity());
+        progressDialog.setMax(100);
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setTitle("Fetching Data");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
         SharedPreferences preferences = this.getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
         final String storedToken = preferences.getString("TokenKey", null);
         final int storedId = preferences.getInt("UserID", 0);
@@ -135,7 +146,6 @@ public class CartFragment extends Fragment {
 
 
         // Inflate the layout for this fragment
-        EventBus.getDefault().register(this);
         final CartAdapters cartAdapters = new CartAdapters(context, Cartlist);
         View view = inflater.inflate(R.layout.fragment_cart, container, false);
         recyclerView = view.findViewById(R.id.recylerView_cart);
@@ -166,14 +176,15 @@ public class CartFragment extends Fragment {
 
                 GrandTotal.setText("" + SumPrice);
 
-
+                progressDialog.dismiss();
                 cartAdapters.setCartList(storedToken, storedId, CartList);
+
             }
 
             @Override
             public void onFailure(Call<ArrayList<TblCart>> call, Throwable t) {
 
-                Log.i(TAG, "onFailure: Call: " + call + " Throwable: " + t);
+                Log.i(TAG, "onFailure: Call in Carrt: " + call + " Throwable: " + t);
             }
         });
 
@@ -217,7 +228,7 @@ public class CartFragment extends Fragment {
                             if (response.isSuccessful()) {
 
                                 String Orderid = CartList.get(finalPos).getOrderId().toString();
-
+                                Toast.makeText(getActivity(), "You Are Checked Out", Toast.LENGTH_SHORT).show();
                                 CartAPI service = CartAPI.retrofit.create(CartAPI.class);
                                 retrofit2.Call<TblCart> delCartItems = service.removeItem(storedToken, Orderid);
 
@@ -298,17 +309,49 @@ public class CartFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public void onBackPressed() {
-        Intent intent = new Intent(this.getContext(), HomeFragment.class);
-        startActivity(intent);
-    }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void onEventCart(CartEvent cartEvent) {
-        int SumofPrice = cartEvent.getMessage();
-        Log.i(TAG, "onEventCart: " + SumofPrice);
+//        int SumofPrice = cartEvent.getMessage();
+//        Log.i(TAG, "onEventCart: " + SumofPrice);
 
-//        SumPrice = SumofPrice;
+        SharedPreferences preferences = this.getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        final String storedToken = preferences.getString("TokenKey", null);
+
+        List<TblCart> CartList = cartEvent.getTblCarts();
+        int position = cartEvent.getMessage();
+        final String AorR = cartEvent.getAorR();
+
+        Log.i(TAG, "onClick: " + CartList.get(position).getTblItem().getQuantity());
+        int itemID = CartList.get(position).getTblItemItemId();
+        int UserId = CartList.get(position).getTblUserUserId();
+        int newQuan;
+        if (AorR.equals("A")) {
+            newQuan = Integer.parseInt(CartList.get(position).getQuantity().toString()) + 1;
+        } else {
+            newQuan = Integer.parseInt(CartList.get(position).getQuantity().toString()) - 1;
+        }
+        CartAPI service = CartAPI.retrofit.create(CartAPI.class);
+        retrofit2.Call<TblCart> AddQuantityToItem = service.addToQuantity(storedToken,
+                itemID,
+                UserId,
+                newQuan,
+                CartList.get(position).getOrderId().toString(),
+                CartList.get(position).getOrderId().toString());
+
+        AddQuantityToItem.enqueue(new Callback<TblCart>() {
+            @Override
+            public void onResponse(retrofit2.Call<TblCart> call, Response<TblCart> response) {
+              //  Toast.makeText(context, "Quantity " + AorR, Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "onResponse in Cart: " + response);
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<TblCart> call, Throwable t) {
+                Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+            }
+        });
+
 
     }
 }

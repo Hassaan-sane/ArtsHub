@@ -40,6 +40,7 @@ public class ProductAdapters extends RecyclerView.Adapter<ProductAdapters.ViewHo
     private List<TblItem> listItems;
     private List<TblItem> listItemsFull;
     private Context context;
+    ArrayList<TblCart> CartList;
 
     public ProductAdapters(List<TblItem> listItems, Context context, int storedId, String storedToken) {
         this.listItems = listItems;
@@ -96,6 +97,9 @@ public class ProductAdapters extends RecyclerView.Adapter<ProductAdapters.ViewHo
                     if(item.getItemName().toString().toLowerCase().contains(filterPattern)){
                         filteredList.add(item);
                     }
+                    else if(item.getPrice().contains(filterPattern)){
+                        filteredList.add(item);
+                    }
 
                 }
             }
@@ -137,39 +141,44 @@ public class ProductAdapters extends RecyclerView.Adapter<ProductAdapters.ViewHo
         holder.AddToCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String PID = holder.IDTextView.getText().toString();
-                int Quantity = 1;
-
-                CartAPI service = CartAPI.retrofit.create(CartAPI.class);
-                retrofit2.Call<ArrayList<TblCart>> GetCartItems = service.getItemOrder(storedToken, storedId);
-
-                GetCartItems.enqueue(new Callback<ArrayList<TblCart>>() {
-                    @Override
-                    public void onResponse(retrofit2.Call<ArrayList<TblCart>> call, Response<ArrayList<TblCart>> response) {
-                        ArrayList<TblCart> CartList = response.body();
-                        CartList.contains(PID);
-                    }
-
-                    @Override
-                    public void onFailure(retrofit2.Call<ArrayList<TblCart>> call, Throwable t) {
-
-                        Log.i(TAG, "onFailure: Call: " + call + " Throwable: " + t);
-                    }
-                });
-
-                retrofit2.Call<TblCart> CartItems = service.addToCart(storedToken, PID, storedId, Quantity);
-
-                CartItems.enqueue(new Callback<TblCart>() {
-                    @Override
-                    public void onResponse(retrofit2.Call<TblCart> call, Response<TblCart> response) {
-                        Toast.makeText(context, "Added Items", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(retrofit2.Call<TblCart> call, Throwable t) {
-                        Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
-                    }
-                });
+//                final String PID = holder.IDTextView.getText().toString();
+//                int Quantity = 1;
+//
+//                CartAPI service = CartAPI.retrofit.create(CartAPI.class);
+//                retrofit2.Call<ArrayList<TblCart>> GetCartItems = service.getItemOrder(storedToken, storedId);
+//
+//                GetCartItems.enqueue(new Callback<ArrayList<TblCart>>() {
+//                    @Override
+//                    public void onResponse(retrofit2.Call<ArrayList<TblCart>> call, Response<ArrayList<TblCart>> response) {
+//                       CartList = response.body();
+//
+//                       for(TblCart item: CartList) {
+//                           if (item.getTblItemItemId().equals(PID)) {
+//                               Toast.makeText(context, "Item Already in Cart", Toast.LENGTH_SHORT).show();
+//                           }
+//                       }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(retrofit2.Call<ArrayList<TblCart>> call, Throwable t) {
+//
+//                        Log.i(TAG, "onFailure in Padapter: Call: " + call + " Throwable: " + t);
+//                    }
+//                });
+//
+//                retrofit2.Call<TblCart> CartItems = service.addToCart(storedToken, PID, storedId, Quantity);
+//
+//                CartItems.enqueue(new Callback<TblCart>() {
+//                    @Override
+//                    public void onResponse(retrofit2.Call<TblCart> call, Response<TblCart> response) {
+//                        Toast.makeText(context, "Added Items", Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                    @Override
+//                    public void onFailure(retrofit2.Call<TblCart> call, Throwable t) {
+//                        Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+//                    }
+//                });
 
 
             }

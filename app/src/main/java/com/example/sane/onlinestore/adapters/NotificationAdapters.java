@@ -1,22 +1,34 @@
 package com.example.sane.onlinestore.adapters;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.Context;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.sane.onlinestore.Events.HomeEvent;
+import com.example.sane.onlinestore.Events.NotiEvent;
+import com.example.sane.onlinestore.Fragments.NotificationFragment;
 import com.example.sane.onlinestore.Models.TblPostNotification;
+import com.example.sane.onlinestore.NotificationActivity;
 import com.example.sane.onlinestore.R;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.zip.Inflater;
 
 public class NotificationAdapters extends RecyclerView.Adapter<NotificationAdapters.ViewHolder>{
     private ArrayList<TblPostNotification> NotiList = new ArrayList<>();
-
-    public NotificationAdapters(ArrayList<TblPostNotification> NotiList) {
+private Context context;
+    public NotificationAdapters(ArrayList<TblPostNotification> NotiList, Context applicationContext) {
         this.NotiList=NotiList;
+        context=applicationContext;
 
     }
 
@@ -45,7 +57,7 @@ public class NotificationAdapters extends RecyclerView.Adapter<NotificationAdapt
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         String maintext, secondarytext;
 
         maintext = this.NotiList.get(position).getTblUser().getName()+" has Posted on his Wall";
@@ -57,7 +69,11 @@ public class NotificationAdapters extends RecyclerView.Adapter<NotificationAdapt
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                EventBus.getDefault().postSticky(new NotiEvent(NotiList.get(position),position));
 
+                ((NotificationActivity)context).getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.containerNoti, new NotificationFragment())
+                        .commit();
             }
         });
 

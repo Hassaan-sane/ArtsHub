@@ -18,6 +18,7 @@ import com.example.sane.onlinestore.API.CartAPI;
 import com.example.sane.onlinestore.Events.CartEvent;
 import com.example.sane.onlinestore.Events.HomeEvent;
 import com.example.sane.onlinestore.Events.ProductDetailEvent;
+import com.example.sane.onlinestore.Events.UserEvent;
 import com.example.sane.onlinestore.Fragments.CartFragment;
 import com.example.sane.onlinestore.MainActivity;
 import com.example.sane.onlinestore.Models.Item;
@@ -39,8 +40,7 @@ import static android.content.ContentValues.TAG;
 public class CartAdapters extends RecyclerView.Adapter<CartAdapters.ViewHolder> {
 
     private Context context;
-    private List<TblCart> CartList = new ArrayList<>();
-    private List<TblItem> tblItem;
+    private List<TblCart> CartList;
     int SumPrice = 0, storedId;
     String storedToken;
 
@@ -98,8 +98,8 @@ public class CartAdapters extends RecyclerView.Adapter<CartAdapters.ViewHolder> 
             int PricexQuant=this.CartList.get(position).getQuantity()*(Integer.parseInt(this.CartList.get(position).getTblItem().getPrice()));
             holder.CartItemPrice.setText(PricexQuant+"");
 
-
-        EventBus.getDefault().postSticky(new CartEvent(SumPrice));
+//
+//        EventBus.getDefault().postSticky(new CartEvent(SumPrice));
             holder.BtnRemove.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -135,27 +135,29 @@ public class CartAdapters extends RecyclerView.Adapter<CartAdapters.ViewHolder> 
                 public void onClick(View view) {
                     if (CartList.get(position).getTblItem().getQuantity() > Integer.parseInt(holder.Quantity.getText().toString())) {
 
-                        Log.i(TAG, "onClick: " + CartList.get(position).getTblItem().getQuantity());
 
-                        int Add = Integer.parseInt(holder.Quantity.getText().toString()) + 1;
-                        int itemID = CartList.get(position).getTblItemItemId();
-                        int UserId = CartList.get(position).getTblUserUserId();
-
-                        CartAPI service = CartAPI.retrofit.create(CartAPI.class);
-                        retrofit2.Call<TblCart> AddQuantityToItem = service.addToQuantity(storedToken,itemID,UserId, Add, holder.OrderId.getText().toString(),holder.OrderId.getText().toString());
-
-                        AddQuantityToItem.enqueue(new Callback<TblCart>() {
-                            @Override
-                            public void onResponse(retrofit2.Call<TblCart> call, Response<TblCart> response) {
-                                Toast.makeText(context, "Quantity aded", Toast.LENGTH_SHORT).show();
-                                Log.i(TAG, "onResponse in Cart: " + response);
-                            }
-
-                            @Override
-                            public void onFailure(retrofit2.Call<TblCart> call, Throwable t) {
-                                Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
-                            }
-                        });
+                        EventBus.getDefault().postSticky(new CartEvent(position, CartList,"A"));
+//                        Log.i(TAG, "onClick: " + CartList.get(position).getTblItem().getQuantity());
+//
+//                        int Add = Integer.parseInt(holder.Quantity.getText().toString()) + 1;
+//                        int itemID = CartList.get(position).getTblItemItemId();
+//                        int UserId = CartList.get(position).getTblUserUserId();
+//
+//                        CartAPI service = CartAPI.retrofit.create(CartAPI.class);
+//                        retrofit2.Call<TblCart> AddQuantityToItem = service.addToQuantity(storedToken,itemID,UserId, Add, holder.OrderId.getText().toString(),holder.OrderId.getText().toString());
+//
+//                        AddQuantityToItem.enqueue(new Callback<TblCart>() {
+//                            @Override
+//                            public void onResponse(retrofit2.Call<TblCart> call, Response<TblCart> response) {
+//                                Toast.makeText(context, "Quantity aded", Toast.LENGTH_SHORT).show();
+//                                Log.i(TAG, "onResponse in Cart: " + response);
+//                            }
+//
+//                            @Override
+//                            public void onFailure(retrofit2.Call<TblCart> call, Throwable t) {
+//                                Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+//                            }
+//                        });
 
                         ((MainActivity) context).getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.container, new CartFragment())
@@ -170,29 +172,31 @@ public class CartAdapters extends RecyclerView.Adapter<CartAdapters.ViewHolder> 
             holder.BtnMinusQ.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (CartList.get(position).getTblItem().getQuantity() >= 1) {
+                    if (CartList.get(position).getQuantity()> 1) {
 
-                        Log.i(TAG, "onClick: " + CartList.get(position).getTblItem().getQuantity());
+//                        Log.i(TAG, "onClick: " + CartList.get(position).getTblItem().getQuantity());
+//
+//                        int Minus = Integer.parseInt(holder.Quantity.getText().toString()) - 1;
+//                        int itemID = CartList.get(position).getTblItemItemId();
+//                        int UserId = CartList.get(position).getTblUserUserId();
+//
+//                        CartAPI service = CartAPI.retrofit.create(CartAPI.class);
+//                        retrofit2.Call<TblCart> AddQuantityToItem = service.addToQuantity(storedToken,itemID,UserId, Minus, holder.OrderId.getText().toString(),holder.OrderId.getText().toString());
+//
+//                        AddQuantityToItem.enqueue(new Callback<TblCart>() {
+//                            @Override
+//                            public void onResponse(retrofit2.Call<TblCart> call, Response<TblCart> response) {
+//                                Toast.makeText(context, "Quantity Removed", Toast.LENGTH_SHORT).show();
+//                                Log.i(TAG, "onResponse in Cart: " + response);
+//                            }
+//
+//                            @Override
+//                            public void onFailure(retrofit2.Call<TblCart> call, Throwable t) {
+//                                Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+//                            }
+//                        });
 
-                        int Minus = Integer.parseInt(holder.Quantity.getText().toString()) - 1;
-                        int itemID = CartList.get(position).getTblItemItemId();
-                        int UserId = CartList.get(position).getTblUserUserId();
-
-                        CartAPI service = CartAPI.retrofit.create(CartAPI.class);
-                        retrofit2.Call<TblCart> AddQuantityToItem = service.addToQuantity(storedToken,itemID,UserId, Minus, holder.OrderId.getText().toString(),holder.OrderId.getText().toString());
-
-                        AddQuantityToItem.enqueue(new Callback<TblCart>() {
-                            @Override
-                            public void onResponse(retrofit2.Call<TblCart> call, Response<TblCart> response) {
-                                Toast.makeText(context, "Quantity Removed", Toast.LENGTH_SHORT).show();
-                                Log.i(TAG, "onResponse in Cart: " + response);
-                            }
-
-                            @Override
-                            public void onFailure(retrofit2.Call<TblCart> call, Throwable t) {
-                                Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
-                            }
-                        });
+                        EventBus.getDefault().postSticky(new CartEvent(position, CartList,"R"));
 
                         ((MainActivity) context).getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.container, new CartFragment())
@@ -208,10 +212,10 @@ public class CartAdapters extends RecyclerView.Adapter<CartAdapters.ViewHolder> 
                 public void onClick(View view) {
                     Toast.makeText(context, "alsfnsac" + position, Toast.LENGTH_SHORT).show();
 
-
-                    EventBus.getDefault().postSticky(new ProductDetailEvent(CartList.get(position).getTblItem(), position));
-                    Intent intent = new Intent(context, ProductActivity.class);
-                    context.startActivity(intent);
+//
+//                    EventBus.getDefault().postSticky(new ProductDetailEvent(CartList.get(position).getTblItem(), position));
+//                    Intent intent = new Intent(context, ProductActivity.class);
+//                    context.startActivity(intent);
                 }
             });
 //        }

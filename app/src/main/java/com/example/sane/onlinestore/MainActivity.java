@@ -101,7 +101,9 @@ public class MainActivity extends AppCompatActivity {
 
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    transaction.replace(R.id.container, new HomeFragment()).commit();
+//                    transaction.replace(R.id.container, new HomeFragment()).commit();
+                    finish();
+                    startActivity(getIntent());
                     Toast.makeText(MainActivity.this, "Home", Toast.LENGTH_SHORT).show();
                     return true;
 
@@ -139,14 +141,9 @@ public class MainActivity extends AppCompatActivity {
 
                 case R.id.navigation_cart:
 
-                    Toast.makeText(MainActivity.this, "search", Toast.LENGTH_SHORT).show();
                     transaction.replace(R.id.container, new CartFragment()).commit();
                     return true;
 
-                default:
-                    transaction.replace(R.id.container, new HomeFragment()).commit();
-                    Toast.makeText(MainActivity.this, "Home", Toast.LENGTH_SHORT).show();
-                    break;
             }
             return false;
         }
@@ -189,6 +186,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+//        preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+//        storedToken = preferences.getString("TokenKey", null);
+//        storedId = preferences.getInt("UserID", 0);
+//        storedRole = preferences.getString("Role", null);
+//
+//        productAdapter = new ProductAdapters(arrayList, getApplicationContext(), storedId, storedToken);
+//        recyclerView = findViewById(R.id.recyclerView_homeactivity);
+//        recyclerView.setHasFixedSize(true);
+//        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+//        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+//        recyclerView.setAdapter(productAdapter);
+//
+//        final HomeAPI service = HomeAPI.retrofit.create(HomeAPI.class);
+//        Call<ArrayList<TblItem>> ItemList = service.getItemList(storedToken);
+//        ItemList.enqueue(new Callback<ArrayList<TblItem>>() {
+//            @Override
+//            public void onResponse(Call<ArrayList<TblItem>> call, Response<ArrayList<TblItem>> response) {
+//                ItemDetails = response.body();
+//                Log.i(TAG, "onResponse: " + response.toString());
+//                productAdapter.setItemList(ItemDetails);
+//                String ViewTime= String.valueOf(System.currentTimeMillis());
+//                Log.i(TAG, "onResponse2: " + ViewTime);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ArrayList<TblItem>> call, Throwable t) {
+//                Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+//
+//            }
+//        });
+        super.onStart();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -205,7 +237,8 @@ public class MainActivity extends AppCompatActivity {
         storedId = preferences.getInt("UserID", 0);
         storedRole = preferences.getString("Role", null);
 
-        Log.i(TAG, "onCreate: " + storedToken);
+        Log.i(TAG, "onCreate: "+storedToken);
+
         if (storedToken == null) {
 
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
@@ -234,7 +267,8 @@ public class MainActivity extends AppCompatActivity {
                 ItemDetails = response.body();
                 Log.i(TAG, "onResponse: " + response.toString());
                 productAdapter.setItemList(ItemDetails);
-                Log.i(TAG, "onResponse2: " + ItemDetails);
+                String ViewTime= String.valueOf(System.currentTimeMillis());
+                Log.i(TAG, "onResponse2: " + ViewTime);
 
                 progressDialog.dismiss();
 //                Call<ArrayList<TblItemNotification>> GetItemNoti = service.GetItemNotification(storedToken);

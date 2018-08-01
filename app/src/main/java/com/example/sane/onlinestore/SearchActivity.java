@@ -72,14 +72,16 @@ public class SearchActivity extends AppCompatActivity {
     }
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+
         final SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         String storedToken = preferences.getString("TokenKey", null);
         int storedId = preferences.getInt("UserID", 0);
-
+getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         if (storedToken == null) {
 
@@ -123,5 +125,10 @@ public class SearchActivity extends AppCompatActivity {
 
     }
 
-
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(getApplicationContext(),UserProfileActivity.class);
+        finish();
+        startActivity(intent);
+    }
 }

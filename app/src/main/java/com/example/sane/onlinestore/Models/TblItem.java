@@ -9,15 +9,15 @@ public class TblItem{
     @SerializedName("tbl_ItemDetail")
     @Expose
     private List<Object> tblItemDetail = null;
-    @SerializedName("tbl_ItemOrder")
-    @Expose
-    private List<Object> tblItemOrder = null;
-    @SerializedName("tbl_ItemNotification")
-    @Expose
-    private List<Object> tblItemNotification = null;
-    @SerializedName("tbl_Shipping")
-    @Expose
-    private List<Object> tblShipping = null;
+//    @SerializedName("tbl_ItemOrder")
+//    @Expose
+//    private List<Object> tblItemOrder = null;
+//    @SerializedName("tbl_ItemNotification")
+//    @Expose
+//    private List<Object> tblItemNotification = null;
+//    @SerializedName("tbl_Shipping")
+//    @Expose
+//    private List<Object> tblShipping = null;
     @SerializedName("ItemId")
     @Expose
     private Integer itemId;
@@ -48,24 +48,8 @@ public class TblItem{
     public TblItem(List<TblItem> tblItem) {
     }
 
-    /**
-     *
-     * @param itemName
-     * @param price
-     * @param tblItemDetail
-     * @param categoryId
-     * @param tblItemOrder
-     * @param quantity
-     * @param tblShipping
-     * @param itemDesc
-     * @param itemId
-     * @param discount
-     */
-    public TblItem(List<Object> tblItemDetail, List<Object> tblItemOrder, List<Object> tblShipping, Integer itemId, String itemName, String itemDesc, String price, String discount, Integer categoryId, Integer quantity) {
-        super();
+    public TblItem(List<Object> tblItemDetail, Integer itemId, String itemName, String itemDesc, String price, String discount, Integer categoryId, Integer quantity) {
         this.tblItemDetail = tblItemDetail;
-        this.tblItemOrder = tblItemOrder;
-        this.tblShipping = tblShipping;
         this.itemId = itemId;
         this.itemName = itemName;
         this.itemDesc = itemDesc;
@@ -76,6 +60,23 @@ public class TblItem{
     }
 
 
+//    public TblItem(List<Object> tblItemDetail, List<Object> tblItemOrder, List<Object> tblShipping, Integer itemId, String itemName, String itemDesc, String price, String discount, Integer categoryId, Integer quantity) {
+//        super();
+//        this.tblItemDetail = tblItemDetail;
+//        this.tblItemOrder = tblItemOrder;
+//        this.tblShipping = tblShipping;
+//        this.itemId = itemId;
+//        this.itemName = itemName;
+//        this.itemDesc = itemDesc;
+//        this.price = price;
+//        this.discount = discount;
+//        this.categoryId = categoryId;
+//        this.quantity = quantity;
+//    }
+
+
+
+
     public List<Object> getTblItemDetail() {
         return tblItemDetail;
     }
@@ -84,21 +85,21 @@ public class TblItem{
         this.tblItemDetail = tblItemDetail;
     }
 
-    public List<Object> getTblItemOrder() {
-        return tblItemOrder;
-    }
-
-    public void setTblItemOrder(List<Object> tblItemOrder) {
-        this.tblItemOrder = tblItemOrder;
-    }
-
-    public List<Object> getTblShipping() {
-        return tblShipping;
-    }
-
-    public void setTblShipping(List<Object> tblShipping) {
-        this.tblShipping = tblShipping;
-    }
+//    public List<Object> getTblItemOrder() {
+//        return tblItemOrder;
+//    }
+//
+//    public void setTblItemOrder(List<Object> tblItemOrder) {
+//        this.tblItemOrder = tblItemOrder;
+//    }
+//
+//    public List<Object> getTblShipping() {
+//        return tblShipping;
+//    }
+//
+//    public void setTblShipping(List<Object> tblShipping) {
+//        this.tblShipping = tblShipping;
+//    }
 
     public Integer getItemId() {
         return itemId;
@@ -156,12 +157,12 @@ public class TblItem{
         this.quantity = quantity;
     }
 
-    public List<Object> getTblItemNotification() {
-        return tblItemNotification;
-    }
-
-    public void setTblItemNotification(List<Object> tblItemNotification) {
-        this.tblItemNotification = tblItemNotification;
-    }
+//    public List<Object> getTblItemNotification() {
+//        return tblItemNotification;
+//    }
+//
+//    public void setTblItemNotification(List<Object> tblItemNotification) {
+//        this.tblItemNotification = tblItemNotification;
+//    }
 }
 

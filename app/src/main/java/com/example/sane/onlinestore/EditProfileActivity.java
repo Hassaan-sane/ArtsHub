@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.sane.onlinestore.API.UserAPI;
 import com.example.sane.onlinestore.Events.UserEvent;
@@ -100,44 +101,58 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Call<TblUser> EditUser = service.editUser(storedToken,
-                        EditName.getText().toString(),
-                        tblUser.getTblUserDetail().getEmail(),
-                        tblUser.getRole(),
-                        tblUser.getAspNetUserId(),
-                        tblUser.getIsActive(),
-                        storedId,
-                        storedId);
-                EditUser.enqueue(new Callback<TblUser>() {
-                    @Override
-                    public void onResponse(Call<TblUser> call, Response<TblUser> response) {
-                        Log.i(TAG, "onResponse in confirm: " + response);
-                    }
+                if (!EditName.getText().toString().matches("[a-zA-Z ]")) {
+                    Toast.makeText(EditProfileActivity.this, "Name Cannot contain Other than alphabets", Toast.LENGTH_SHORT).show();
 
-                    @Override
-                    public void onFailure(Call<TblUser> call, Throwable t) {
-                        Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
-                    }
-                });
+                } else if (!EditPhone.getText().toString().matches("[0-9]")) {
+                    Toast.makeText(EditProfileActivity.this, "Phone Number can only contain Number", Toast.LENGTH_SHORT).show();
+                } else if (EditPhone.getText().toString().length() >= 15) {
+                    Toast.makeText(EditProfileActivity.this, "Phone number cant be this long", Toast.LENGTH_SHORT).show();
 
-                Call<TblUserDetail> EditUserDetail = service.editUserDetail(storedToken,
-                        storedId,
-                        storedId,
-                        EditPhone.getText().toString(),
-                        tblUser.getTblUserDetail().getEmail(),
-                        EditAddress.getText().toString(),
-                        tblUser.getTblUserDetail().getUserImage());
-                EditUserDetail.enqueue(new Callback<TblUserDetail>() {
-                    @Override
-                    public void onResponse(Call<TblUserDetail> call, Response<TblUserDetail> response) {
-                        Log.i(TAG, "onResponse in confirm detail: " + response);
-                    }
+                } else if (EditPhone.getText().toString().length() <= 10) {
+                    Toast.makeText(EditProfileActivity.this, "Phone number cant be this short", Toast.LENGTH_SHORT).show();
 
-                    @Override
-                    public void onFailure(Call<TblUserDetail> call, Throwable t) {
-                        Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
-                    }
-                });
+                } else {
+
+                    Call<TblUser> EditUser = service.editUser(storedToken,
+                            EditName.getText().toString(),
+                            tblUser.getTblUserDetail().getEmail(),
+                            tblUser.getRole(),
+                            tblUser.getAspNetUserId(),
+                            tblUser.getIsActive(),
+                            storedId,
+                            storedId);
+                    EditUser.enqueue(new Callback<TblUser>() {
+                        @Override
+                        public void onResponse(Call<TblUser> call, Response<TblUser> response) {
+                            Log.i(TAG, "onResponse in confirm: " + response);
+                        }
+
+                        @Override
+                        public void onFailure(Call<TblUser> call, Throwable t) {
+                            Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+                        }
+                    });
+
+                    Call<TblUserDetail> EditUserDetail = service.editUserDetail(storedToken,
+                            storedId,
+                            storedId,
+                            EditPhone.getText().toString(),
+                            tblUser.getTblUserDetail().getEmail(),
+                            EditAddress.getText().toString(),
+                            tblUser.getTblUserDetail().getUserImage());
+                    EditUserDetail.enqueue(new Callback<TblUserDetail>() {
+                        @Override
+                        public void onResponse(Call<TblUserDetail> call, Response<TblUserDetail> response) {
+                            Log.i(TAG, "onResponse in confirm detail: " + response);
+                        }
+
+                        @Override
+                        public void onFailure(Call<TblUserDetail> call, Throwable t) {
+                            Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+                        }
+                    });
+                }
                 if (storedRole.toLowerCase().equals("r")) {
                     Intent i = new Intent(getApplicationContext(), ProfileArtistActivity.class);
                     startActivity(i);
@@ -147,7 +162,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 }
             }
         });
-
 
     }
 

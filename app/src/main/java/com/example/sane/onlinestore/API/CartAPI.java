@@ -33,7 +33,7 @@ public interface CartAPI {
     @FormUrlEncoded
     Call<TblCart> addToCart(
             @Header("Authorization") String token,
-            @Field("tbl_Item_ItemId") String ItemID,
+            @Field("tbl_Item_ItemId") int ItemID,
             @Field("tbl_User_UserId") int UserID,
             @Field("Quantity") int Quantity);
 

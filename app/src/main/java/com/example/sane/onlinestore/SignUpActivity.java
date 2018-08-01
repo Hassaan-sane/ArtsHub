@@ -81,11 +81,20 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(SignUpActivity.this, "Email Not Correct", Toast.LENGTH_SHORT).show();
                 } else if (PswrdString.length() <= 4) {
                     Toast.makeText(SignUpActivity.this, "Password Should be atlease 7 charachters", Toast.LENGTH_SHORT).show();
+                }else if (PswrdString.length() >= 20) {
+                    Toast.makeText(SignUpActivity.this, "Password Should be atmost 15 charachters", Toast.LENGTH_SHORT).show();
                 } else if (!PswrdString.matches("^[A-Z]+[a-z]+[0-9]+[+@.#$%^&*_&\\\\]+$")
+
 //                        || !PswrdString.matches("^[a-z]+[A-Z]+[0-9]+[+@.#$%^&*_&\\\\]+$")
 //                        || !PswrdString.matches("^[0-9]+[A-Z]+[a-z]+[+@.#$%^&*_&\\\\]+$")
 //                        || !PswrdString.matches("^[+@.#$%^&*_&\\\\\\\\]+[A-Z]+[a-z]+[0-9]+$"))
                         ) {
+                    Toast.makeText(SignUpActivity.this, "Password Should Contain Capital Letters,Small letter,Numbers and Special SYmbols", Toast.LENGTH_LONG).show();
+                } else if (!PswrdString.matches("^[a-z]+[A-Z]+[0-9]+[+@.#$%^&*_&\\\\]+$")) {
+                    Toast.makeText(SignUpActivity.this, "Password Should Contain Capital Letters,Small letter,Numbers and Special SYmbols", Toast.LENGTH_LONG).show();
+                } else if (!PswrdString.matches("^[0-9]+[A-Z]+[a-z]+[+@.#$%^&*_&\\\\]+$")) {
+                    Toast.makeText(SignUpActivity.this, "Password Should Contain Capital Letters,Small letter,Numbers and Special SYmbols", Toast.LENGTH_LONG).show();
+                } else if (!PswrdString.matches("^[+@.#$%^&*_&\\\\\\\\]+[A-Z]+[a-z]+[0-9]+$")) {
                     Toast.makeText(SignUpActivity.this, "Password Should Contain Capital Letters,Small letter,Numbers and Special SYmbols", Toast.LENGTH_LONG).show();
                 } else if (PswrdString == "") {
                     Toast.makeText(SignUpActivity.this, "Password Cant be Empty", Toast.LENGTH_SHORT).show();

@@ -18,6 +18,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface ArtistAPI {
@@ -52,6 +53,17 @@ public interface ArtistAPI {
                                                   @Field("ArtistId") int ArtistId,
                                                   @Field("UserId") int UserId,
                                                   @Field("PostId") int PostId
+    );
+    @PUT("PostNotification/{NotificationId}")
+    @Headers("Content-Type: application/x-www-form-urlencoded")
+    @FormUrlEncoded
+    Call<TblPostNotification> PutPostNotification(@Header("Authorization") String token,
+                                                  @Field("ArtistId") int ArtistId,
+                                                  @Field("UserId") int UserId,
+                                                  @Field("PostId") int PostId,
+                                                  @Field("ViewTime") String ViewTime,
+                                                  @Field("NotificationId") int notiId,
+                                                  @Path("NotificationId") int notiId1
     );
 
     @POST("Complaint")

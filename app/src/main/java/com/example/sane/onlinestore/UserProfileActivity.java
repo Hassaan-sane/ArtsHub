@@ -45,8 +45,6 @@ import static android.content.ContentValues.TAG;
 
 public class UserProfileActivity extends AppCompatActivity {
 
-    private TextView mTextMessage;
-    private String img;
     private TblUser tblUser;
     ProgressDialog progressDialog;
 
@@ -84,7 +82,11 @@ public class UserProfileActivity extends AppCompatActivity {
             return false;
         }
     };
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        onBackPressed();
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,10 +100,8 @@ public class UserProfileActivity extends AppCompatActivity {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();
 
-        getSupportActionBar().setTitle("Profile");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation_user);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 

@@ -30,7 +30,7 @@ public class ProfileSearchResult extends AppCompatActivity {
     List<TblUser> userList;
     ArrayList<TblFollow> FollowerList;
     int position;
-    private Boolean IsFollowed = false;
+    private Boolean IsFollowed;
     private Button BtnFollow;
     private Button BtnUnFollow;
 
@@ -55,6 +55,8 @@ public class ProfileSearchResult extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         final String storedToken = preferences.getString("TokenKey", null);
         final int storedId = preferences.getInt("UserID", 0);
+        IsFollowed = preferences.getBoolean("IsFollowed",false);
+        final SharedPreferences.Editor editor = preferences.edit();
 
 
         if (storedToken == null) {
@@ -76,16 +78,21 @@ public class ProfileSearchResult extends AppCompatActivity {
             @Override
             public void onResponse(Call<ArrayList<TblFollow>> call, Response<ArrayList<TblFollow>> response) {
                 FollowerList = response.body();
+
                 int NumberOfFollowers = FollowerList.size();
                 for (TblFollow item : FollowerList) {
                     if (storedId == item.getUserId()) {
                         IsFollowed = true;
                         BtnFollow.setVisibility(View.GONE);
                         BtnUnFollow.setVisibility(View.VISIBLE);
+                        editor.putBoolean("IsFollowed", true);
+                        editor.apply();
 
                     } else {
                         BtnUnFollow.setVisibility(View.GONE);
                         BtnFollow.setVisibility(View.VISIBLE);
+                        editor.putBoolean("IsFollowed", false);
+                        editor.apply();
                     }
                 }
                 Followers.setText("" + NumberOfFollowers);
@@ -128,6 +135,8 @@ public class ProfileSearchResult extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         final String storedToken = preferences.getString("TokenKey", null);
         final int storedId = preferences.getInt("UserID", 0);
+        IsFollowed = preferences.getBoolean("IsFollowed",false);
+        final SharedPreferences.Editor editor = preferences.edit();
 
         userList = userEvent.getUser();
         position = userEvent.getPosition();
@@ -166,10 +175,15 @@ public class ProfileSearchResult extends AppCompatActivity {
                         IsFollowed = true;
                         BtnFollow.setVisibility(View.GONE);
                         BtnUnFollow.setVisibility(View.VISIBLE);
+                        editor.putBoolean("IsFollowed", true);
+                        editor.apply();
 
                     } else {
                         BtnUnFollow.setVisibility(View.GONE);
                         BtnFollow.setVisibility(View.VISIBLE);
+                        IsFollowed=false;
+                        editor.putBoolean("IsFollowed", false);
+                        editor.apply();
                     }
                 }
 
@@ -184,29 +198,6 @@ public class ProfileSearchResult extends AppCompatActivity {
             }
         });
 
-        if (IsFollowed == true) {
-            BtnFollow.setVisibility(View.GONE);
-            BtnUnFollow.setVisibility(View.VISIBLE);
-            BtnUnFollow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                   Unfollow();
-                }
-            });
-        } else {
-
-            BtnFollow.setVisibility(View.VISIBLE);
-            BtnUnFollow.setVisibility(View.GONE);
-            BtnFollow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    follow();
-
-                }
-            });
-        }
-
-
     }
 
     public void follow() {
@@ -214,6 +205,8 @@ public class ProfileSearchResult extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         final String storedToken = preferences.getString("TokenKey", null);
         final int storedId = preferences.getInt("UserID", 0);
+        final SharedPreferences.Editor editor = preferences.edit();
+
         final FollowAPI service = FollowAPI.retrofit.create(FollowAPI.class);
         final int ArtistID = userList.get(position).getUserId();
         final TextView Followers = findViewById(R.id.PS_FollowersTextView);
@@ -226,6 +219,9 @@ public class ProfileSearchResult extends AppCompatActivity {
                 BtnFollow.setVisibility(View.GONE);
                 BtnUnFollow.setVisibility(View.VISIBLE);
                 IsFollowed = true;
+                editor.putBoolean("IsFollowed",IsFollowed);
+                editor.apply();
+
                 finish();
                 startActivity(getIntent());
 
@@ -243,6 +239,8 @@ public class ProfileSearchResult extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         final String storedToken = preferences.getString("TokenKey", null);
         final int storedId = preferences.getInt("UserID", 0);
+        final SharedPreferences.Editor editor = preferences.edit();
+
         final FollowAPI service = FollowAPI.retrofit.create(FollowAPI.class);
         final int ArtistID = userList.get(position).getUserId();
         Call<TblFollow> UnFollow = service.DeleteFollow(storedToken, ArtistID, storedId);
@@ -253,8 +251,10 @@ public class ProfileSearchResult extends AppCompatActivity {
                 BtnFollow.setVisibility(View.VISIBLE);
                 BtnUnFollow.setVisibility(View.GONE);
                 IsFollowed = false;
+                editor.putBoolean("IsFollowed",IsFollowed);
                 finish();
                 startActivity(getIntent());
+                editor.apply();
             }
 
             @Override

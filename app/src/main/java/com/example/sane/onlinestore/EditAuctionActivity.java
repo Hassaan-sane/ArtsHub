@@ -20,6 +20,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.sane.onlinestore.API.AuctionAPI;
 import com.example.sane.onlinestore.Events.AuctionEvent;
@@ -198,7 +199,7 @@ public class EditAuctionActivity extends AppCompatActivity implements DatePicker
         }
 
         final List<TblAuction> tblAuction = auctionEvent.getMessage();
-        final int pos =  auctionEvent.getPosition();
+        final int pos = auctionEvent.getPosition();
 
 
         final EditText AuctionTitle, AuctionDesc, StartBid;
@@ -216,7 +217,6 @@ public class EditAuctionActivity extends AppCompatActivity implements DatePicker
         Button BtnStartDate = findViewById(R.id.BtnEPickStartDate);
         Button BtnEndDate = findViewById(R.id.BtnEPickEndDate);
         Button BtnSubmit = findViewById(R.id.BtnReSubmitAuction);
-
 
 
         BtnStartDate.setOnClickListener(new View.OnClickListener() {
@@ -243,31 +243,69 @@ public class EditAuctionActivity extends AppCompatActivity implements DatePicker
             @Override
             public void onClick(View view) {
 
-                final String Title,Desc;
+
+                final String Title, Desc;
                 final int Bid;
-                Title=AuctionTitle.getText().toString();
+
+                Title = AuctionTitle.getText().toString();
                 Desc = AuctionDesc.getText().toString();
                 Bid = Integer.parseInt(StartBid.getText().toString());
 
-                AuctionAPI service = AuctionAPI.retrofit.create(AuctionAPI.class);
-                Call<TblAuction> PostAuction= service
-                        .PutAuction(storedToken,Title,formatEndDate,storedId,Desc,Bid,formatStartDate,tblAuction.get(pos).getAuctionId());
+                SimpleDateFormat Format = new SimpleDateFormat("dd MMM yyyy");
 
-                PostAuction.enqueue(new Callback<TblAuction>() {
-                    @Override
-                    public void onResponse(Call<TblAuction> call, Response<TblAuction> response) {
-                        TblAuction tblAuction = response.body();
-                        Log.i("onresoponse", "onResponse in edit: "+response.toString());
+                Date startDate = null;
+                Date endDate = null;
+                try {
+                    startDate = Format.parse(formatStartDate);
+                    endDate = Format.parse(formatEndDate);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
 
-                    }
+                Date check = Calendar.getInstance().getTime();
 
-                    @Override
-                    public void onFailure(Call<TblAuction> call, Throwable t) {
+                if (check.getTime() > startDate.getTime()) {
+                    Toast.makeText(EditAuctionActivity.this, "Start date cannot be less than today", Toast.LENGTH_SHORT).show();
 
-                        Log.i("AuctionPostFaliure", "AuctionPostFaliure" + call + " Throwable: " + t);
+                } else if (check.getTime() > endDate.getTime()) {
+                    Toast.makeText(EditAuctionActivity.this, "end date cannot be less than today", Toast.LENGTH_SHORT).show();
 
-                    }
-                });
+
+                } else if (startDate.getTime() > endDate.getTime()) {
+                    Toast.makeText(EditAuctionActivity.this, "start date cannot be greater than end date", Toast.LENGTH_SHORT).show();
+
+                } else if (!Title.matches("[a-zA-Z ]")) {
+                    Toast.makeText(EditAuctionActivity.this, "Title can only contain alphabets", Toast.LENGTH_SHORT).show();
+
+                } else if (!StartBid.getText().toString().matches("[0-9]")) {
+                    Toast.makeText(EditAuctionActivity.this, "Bid can only contain numbers", Toast.LENGTH_SHORT).show();
+                } else if (startDate.getTime() < endDate.getTime()) {
+
+                    AuctionAPI service = AuctionAPI.retrofit.create(AuctionAPI.class);
+                    Call<TblAuction> PostAuction = service
+                            .PutAuction(storedToken, Title, formatEndDate, storedId, Desc, Bid, formatStartDate, tblAuction.get(pos).getAuctionId());
+
+                    PostAuction.enqueue(new Callback<TblAuction>() {
+                        @Override
+                        public void onResponse(Call<TblAuction> call, Response<TblAuction> response) {
+                            TblAuction tblAuction = response.body();
+                            Log.i("onresoponse", "onResponse in edit: " + response.toString());
+
+
+                            Intent intent = new Intent(getApplicationContext(), MyAuctionsActivity.class);
+                            finish();
+                            startActivity(intent);
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<TblAuction> call, Throwable t) {
+
+                            Log.i("AuctionPostFaliure", "AuctionPostFaliure" + call + " Throwable: " + t);
+
+                        }
+                    });
+                }
             }
         });
 

@@ -23,6 +23,10 @@ public class TblAuctionDetail {
         this.auctionImage = auctionImage;
     }
 
+    public TblAuctionDetail(TblAuctionDetail item) {
+
+    }
+
     public Integer getAuctionId() {
         return auctionId;
     }

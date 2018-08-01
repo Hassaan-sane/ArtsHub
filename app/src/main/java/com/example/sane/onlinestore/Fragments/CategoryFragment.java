@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -92,12 +93,7 @@ public class CategoryFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        progressDialog = new ProgressDialog(this.getActivity());
-        progressDialog.setMax(100);
-        progressDialog.setMessage("Please wait...");
-        progressDialog.setTitle("Fetching Data");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.show();
+
 
 
     }
@@ -109,21 +105,28 @@ public class CategoryFragment extends Fragment {
 
         RecyclerView recyclerView;
 
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+
+
         SharedPreferences preferences = this.getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
         String storedToken = preferences.getString("TokenKey", null);
-        int storedId = preferences.getInt("UserID", 0);
         if (storedToken == null) {
 
             Intent intent = new Intent(this.getActivity(), LoginActivity.class);
             startActivity(intent);
         }
+        progressDialog = new ProgressDialog(this.getActivity());
+        progressDialog.setMax(100);
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setTitle("Fetching Data");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
 //        }
 
         final CategoryAdapters categoryAdapter = new CategoryAdapters(this.getContext(), arrayList);
         View view = inflater.inflate(R.layout.fragment_category, container, false);
         recyclerView = view.findViewById(R.id.recylerView_category);
         recyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
         recyclerView.setAdapter(categoryAdapter);
 
@@ -139,9 +142,9 @@ public class CategoryFragment extends Fragment {
                 ArrayList<TblCategory> ProductDetailList = response.body();
                 Log.i("response_body", String.valueOf(response.body()));
                 categoryAdapter.setItemList(ProductDetailList);
-progressDialog.dismiss();
-                CategoryEvent categoryEvent = new CategoryEvent(ProductDetailList);
-                EventBus.getDefault().post(categoryEvent);
+                progressDialog.dismiss();
+//                CategoryEvent categoryEvent = new CategoryEvent(ProductDetailList);
+//                EventBus.getDefault().post(categoryEvent);
 
             }
 

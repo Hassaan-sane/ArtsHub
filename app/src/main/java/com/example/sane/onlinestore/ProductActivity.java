@@ -1,5 +1,6 @@
 package com.example.sane.onlinestore;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
@@ -30,10 +31,6 @@ import retrofit2.Response;
 import static android.content.ContentValues.TAG;
 
 public class ProductActivity extends AppCompatActivity {
-
-
-
-
 
 
     @Override
@@ -80,6 +77,10 @@ public class ProductActivity extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void onEvent(ProductDetailEvent Event) {
 
+        final SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        final String storedToken = preferences.getString("TokenKey", null);
+        final int storedId = preferences.getInt("UserID", 0);
+
         TextView ProductNameTextView;
         TextView ProductPriceTextView;
         ImageView ProductImageView;
@@ -89,6 +90,8 @@ public class ProductActivity extends AppCompatActivity {
         final TblItem Details;
         int position;
 
+
+
         Details = Event.getMessage();
         position = Event.getPosition();
 
@@ -96,7 +99,7 @@ public class ProductActivity extends AppCompatActivity {
         ProductPriceTextView = findViewById(R.id.ProductPriceTextView);
         ProductImageView = findViewById(R.id.ProductImageView);
         ProductDetailsTextView = findViewById(R.id.ProductDetailsTextView);
-        AddToCart = findViewById(R.id.BtnAddtoCart);
+        AddToCart = findViewById(R.id.BtnDetailAddtoCart);
 
         ProductNameTextView.setText(Details.getItemName());
         ProductPriceTextView.setText(Details.getPrice());
@@ -105,28 +108,88 @@ public class ProductActivity extends AppCompatActivity {
         AddToCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String PID = Details.getItemId().toString();
-                int Quantity = 1;
+                final ProgressDialog progressDialog = new ProgressDialog(ProductActivity.this);
+                progressDialog.setMax(100);
+                progressDialog.setMessage("Please wait...");
+                progressDialog.setTitle("Adding Item to Cart");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.show();
+//                String PID = Details.getItemId().toString();
+//                int Quantity = 1;
+//
+//                final SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+//                String storedToken = preferences.getString("TokenKey", null);
+//                int storedId = preferences.getInt("UserID", 0);
+//
+//
+//                CartAPI service = CartAPI.retrofit.create(CartAPI.class);
+//                retrofit2.Call<TblCart> CartItems = service.addToCart(storedToken, PID, storedId, Quantity);
+//
+//                CartItems.enqueue(new Callback<TblCart>() {
+//                    @Override
+//                    public void onResponse(retrofit2.Call<TblCart> call, Response<TblCart> response) {
+//                        Toast.makeText(ProductActivity.this, "Added Items", Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                    @Override
+//                    public void onFailure(retrofit2.Call<TblCart> call, Throwable t) {
+//                        Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+//                    }
+//                });
+                final int PID = Details.getItemId();
+                final int Quantity = 1;
 
-                final SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-                String storedToken = preferences.getString("TokenKey", null);
-                int storedId = preferences.getInt("UserID", 0);
 
+                final CartAPI service = CartAPI.retrofit.create(CartAPI.class);
+                retrofit2.Call<ArrayList<TblCart>> GetCartItems = service.getItemOrder(storedToken, storedId);
 
-                CartAPI service = CartAPI.retrofit.create(CartAPI.class);
-                retrofit2.Call<TblCart> CartItems = service.addToCart(storedToken,PID,storedId,Quantity);
-
-                CartItems.enqueue(new Callback<TblCart>() {
+                GetCartItems.enqueue(new Callback<ArrayList<TblCart>>() {
                     @Override
-                    public void onResponse(retrofit2.Call<TblCart> call, Response<TblCart> response) {
-                        Toast.makeText(ProductActivity.this, "Added Items", Toast.LENGTH_SHORT).show();
+                    public void onResponse(retrofit2.Call<ArrayList<TblCart>> call, Response<ArrayList<TblCart>> response) {
+                        ArrayList<TblCart> CartList = response.body();
+                        if (response.isSuccessful()) {
+                            boolean exist = false;
+                            for (TblCart item : CartList) {
+                                if (item.getTblItemItemId() == PID) {
+                                    exist = true;
+                                }
+                            }
+
+                            if (exist==false){
+                                Toast.makeText(getApplicationContext(), "Added Items", Toast.LENGTH_SHORT).show();
+                                retrofit2.Call<TblCart> CartItems = service.addToCart(storedToken, PID, storedId, Quantity);
+
+                                CartItems.enqueue(new Callback<TblCart>() {
+                                    @Override
+                                    public void onResponse(retrofit2.Call<TblCart> call, Response<TblCart> response) {
+                                        progressDialog.dismiss();
+                                        Log.i(TAG, "onResponsei add to cart: "+response);
+                                        Toast.makeText(ProductActivity.this, "Item Added", Toast.LENGTH_SHORT).show();
+
+
+                                    }
+
+                                    @Override
+                                    public void onFailure(retrofit2.Call<TblCart> call, Throwable t) {
+                                        Log.i(TAG, "onFailure in add to cart: " + call + " Throwable: " + t);
+                                    }
+                                });
+
+                            }
+                            else{
+                                progressDialog.dismiss();
+                                Toast.makeText(ProductActivity.this, "Item Already Added", Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     }
 
                     @Override
-                    public void onFailure(retrofit2.Call<TblCart> call, Throwable t) {
-                        Log.i(TAG, "onFailure: "+call+" Throwable: "+t);
+                    public void onFailure(retrofit2.Call<ArrayList<TblCart>> call, Throwable t) {
+
+                        Log.i(TAG, "onFailure in Padapter: Call: " + call + " Throwable: " + t);
                     }
                 });
+
 
             }
         });

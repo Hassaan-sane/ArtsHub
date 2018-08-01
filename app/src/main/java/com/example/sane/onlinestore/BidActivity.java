@@ -75,9 +75,6 @@ public class BidActivity extends AppCompatActivity {
         }
 
 
-
-
-
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
@@ -95,7 +92,7 @@ public class BidActivity extends AppCompatActivity {
         Log.i(TAG, "onEvent in Bid Activity: " + Details.toString());
 
         TextView PaintingNameTextView;
-        TextView ArtistNameTextView,LastDateTextView;
+        TextView ArtistNameTextView, LastDateTextView;
         final TextView HighestBidTextView;
 
 
@@ -110,10 +107,10 @@ public class BidActivity extends AppCompatActivity {
         PaintingNameTextView.setText(Details.get(position).getAuctionName());
         ArtistNameTextView.setText(Details.get(position).getTblUser().getUsername());
 
-        String LastDateString = Details.get(position).getAuctionLastDate() ;
+        String LastDateString = Details.get(position).getAuctionLastDate();
         Date LastDate = null;
         try {
-           LastDate = Format.parse(LastDateString);
+            LastDate = Format.parse(LastDateString);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -164,12 +161,19 @@ public class BidActivity extends AppCompatActivity {
                     Toast.makeText(BidActivity.this, "You did not Enter a Bid", Toast.LENGTH_SHORT).show();
                 } else if (Integer.parseInt(HighestBidTextView.getText().toString()) >= Integer.parseInt(String.valueOf(BidEditText.getText()))) {
                     Toast.makeText(BidActivity.this, "Your Bid Is too low ", Toast.LENGTH_SHORT).show();
-                } else {
+                } else if(BidEditText.getText().equals("")) {
+                    Toast.makeText(BidActivity.this, "Invalid Bid", Toast.LENGTH_SHORT).show();
+                }else if(BidEditText.getText().length()>=5){
+                    Toast.makeText(context, "Bid Too High", Toast.LENGTH_SHORT).show();
+
+                }
+                else
+                {
 
                     int bidprice = Integer.parseInt(String.valueOf(BidEditText.getText()));
 
                     BidAPI service = BidAPI.retrofit.create(BidAPI.class);
-                    Call<TblBid> PutBids = service.setBid(storedToken,itemidE , storedId, bidprice);
+                    Call<TblBid> PutBids = service.setBid(storedToken, itemidE, storedId, bidprice);
                     PutBids.enqueue(new Callback<TblBid>() {
                         @Override
                         public void onResponse(Call<TblBid> call, Response<TblBid> response) {

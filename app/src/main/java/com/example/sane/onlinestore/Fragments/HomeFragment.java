@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -43,10 +44,8 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "TAG";
     RecyclerView recyclerView;
-    ArrayList arrayList = new ArrayList();
     TblCategory items = new TblCategory();
     ArrayList<TblItem> ItemDetails = new ArrayList<>();
-    List<TblItem> tblItems;
 
 
     ProgressDialog progressDialog;
@@ -63,6 +62,7 @@ public class HomeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
+
         progressDialog = new ProgressDialog(this.getActivity());
         progressDialog.setMax(100);
         progressDialog.setMessage("Please wait...");
@@ -76,11 +76,14 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+
         SharedPreferences preferences = this.getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
         String storedToken = preferences.getString("TokenKey", null);
         int storedId = preferences.getInt("UserID", 0);
 
-        // Inflate the layout for this fragment
         HomeAPI service = HomeAPI.retrofit.create(HomeAPI.class);
         if (storedToken == null) {
 
@@ -92,7 +95,7 @@ public class HomeFragment extends Fragment {
         if (CategoryID < 0) {
 
 
-            final ProductAdapters productAdapter = new ProductAdapters(arrayList, this.getContext(), storedId, storedToken);
+            final ProductAdapters productAdapter = new ProductAdapters(ItemDetails, this.getContext(), storedId, storedToken);
             View view = inflater.inflate(R.layout.fragment_home, container, false);
             recyclerView = view.findViewById(R.id.recylerView_home);
             recyclerView.setHasFixedSize(true);
@@ -115,7 +118,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void onFailure(Call<ArrayList<TblItem>> call, Throwable t) {
-                    Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+                    Log.i(TAG, "onFailure in Home Single: " + call + " Throwable: " + t);
 
                 }
             });
@@ -149,7 +152,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void onFailure(Call<TblCategory> call, Throwable t) {
-                    Log.i(TAG, "onFailure: " + call + " Throwable: " + t);
+                    Log.i(TAG, "onFailure in home spec: " + call + " Throwable: " + t);
 
                 }
             });

@@ -29,6 +29,9 @@ public interface AuctionAPI {
     @GET("Auction/{AuctionId}")
     Call<ArrayList<TblAuction>> getAuctionListById(@Header("Authorization") String token, @Path("AuctionId") int id);
 
+    @GET("AuctionDetial")
+    Call<ArrayList<TblAuctionDetail>> getAuctionDetail(@Header("Authorization") String token);
+
     @POST("Auction")
     @FormUrlEncoded
     Call<TblAuction> PostAuction(@Header("Authorization") String token,
@@ -45,7 +48,7 @@ public interface AuctionAPI {
                                              @Field("AuctionId") int AuctionId,
                                              @Field("AuctionImage") String Image);
 
-    @PUT("AuctionDetial")
+    @PUT("AuctionDetial/{AuctionDetaild}")
     @FormUrlEncoded
     Call<TblAuctionDetail> PutAuctionDetail(@Header("Authorization") String token,
                                             @Field("AuctionId") int AuctionId,
@@ -71,7 +74,7 @@ public interface AuctionAPI {
 
     @DELETE("AuctionDetial/{AuctionDetailId}")
     @FormUrlEncoded
-    Call<TblAuction> DeleteAuctionDets(@Header("Authorization") String token,
+    Call<TblAuctionDetail> DeleteAuctionDets(@Header("Authorization") String token,
                                        @Path("AuctionDetailId") int AuctionDetId);
 
 

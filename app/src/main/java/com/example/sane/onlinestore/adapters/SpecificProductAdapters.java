@@ -97,7 +97,7 @@ public class SpecificProductAdapters extends RecyclerView.Adapter<SpecificProduc
 
 
                 CartAPI service = CartAPI.retrofit.create(CartAPI.class);
-                retrofit2.Call<TblCart> CartItems = service.addToCart(storedToken,PID, storedId, Quantity);
+                retrofit2.Call<TblCart> CartItems = service.addToCart(storedToken,Integer.parseInt(PID), storedId, Quantity);
 
                 CartItems.enqueue(new Callback<TblCart>() {
                     @Override

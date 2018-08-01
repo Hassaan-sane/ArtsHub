@@ -95,16 +95,13 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(Call<TblToken> call, Response<TblToken> response) {
                             final TblToken Response = response.body();
-                            Log.i("SignInResponse", "SignInResponse: " + Response.getAccessToken());
-
 
                             final SharedPreferences.Editor editor = sharedpreferences.edit();
 
-
                             if (response.isSuccessful() && response.body() != null) {
-
+                                Log.i("SignInResponse", "SignInResponse: " + Response.getAccessToken());
                                 final UserAPI service = UserAPI.retrofit.create(UserAPI.class);
-                                Call<ArrayList<TblUser>> UserTbl = service.getUserList("Bearer " + Response.getAccessToken().toString());
+                                Call<ArrayList<TblUser>> UserTbl = service.getUserList("Bearer "+ Response.getAccessToken().toString());
                                 UserTbl.enqueue(new Callback<ArrayList<TblUser>>() {
                                     @Override
                                     public void onResponse(Call<ArrayList<TblUser>> call, Response<ArrayList<TblUser>> response) {
@@ -148,12 +145,12 @@ public class LoginActivity extends AppCompatActivity {
                                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                 intent.putExtra("Error", "" + response.errorBody());
                                 startActivity(intent);
-                                Toast.makeText(LoginActivity.this, "" + response.errorBody(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this, "UserName or Password Incorrect", Toast.LENGTH_SHORT).show();
 
                             }
 
 
-                            Toast.makeText(LoginActivity.this, "Signed IN" + response.toString(), Toast.LENGTH_LONG).show();
+                            //Toast.makeText(LoginActivity.this, "Signed IN" + response.toString(), Toast.LENGTH_LONG).show();
 
                         }
 

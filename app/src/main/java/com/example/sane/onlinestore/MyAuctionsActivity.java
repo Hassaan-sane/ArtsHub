@@ -54,7 +54,7 @@ public class MyAuctionsActivity extends AppCompatActivity {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();
 
-        final MyAuctionAdapters myAuctionAdapters = new MyAuctionAdapters(arrayList, getApplicationContext());
+        final MyAuctionAdapters myAuctionAdapters = new MyAuctionAdapters(arrayList, getApplicationContext(),storedToken);
 
         recyclerView = findViewById(R.id.recylerView_my_auction);
         recyclerView.setHasFixedSize(true);
